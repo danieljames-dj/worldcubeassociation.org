@@ -16,10 +16,6 @@ jobs:
       run:
         working-directory: WcaOnRails
     steps:
-      - name: Install node modules
-        with:
-          working-directory: WcaOnRails
-        run: bin/yarn
       - uses: actions/checkout@v3
       - uses: fregante/setup-git-user@v2 # set up dummy user.name and user.email in git so that Overcommit doesn't explode
       - name: Activate MySQL # as per https://github.com/actions/virtual-environments/blob/main/images/linux/Ubuntu2004-README.md#mysql
@@ -30,6 +26,10 @@ jobs:
         with:
           working-directory: WcaOnRails
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+      - name: Install node modules
+        with:
+          working-directory: WcaOnRails
+        run: bin/yarn
       - uses: actions/setup-node@v3 # this also includes Yarn
         with:
           node-version: '16'
