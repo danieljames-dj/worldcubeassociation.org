@@ -27,6 +27,7 @@ jobs:
           working-directory: WcaOnRails
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
       - name: Install node modules
+        uses: actions/cache@v3
         with:
           working-directory: WcaOnRails
         run: bin/yarn
