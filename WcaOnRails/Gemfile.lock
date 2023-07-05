@@ -548,13 +548,13 @@ GEM
       tilt
     recaptcha (5.14.0)
     redcarpet (3.6.0)
-    regexp_parser (2.8.1)
-    reline (0.3.5)
-      io-console (~> 0.5)
     redis (5.0.6)
       redis-client (>= 0.9.0)
     redis-client (0.12.1)
       connection_pool
+    regexp_parser (2.8.1)
+    reline (0.3.5)
+      io-console (~> 0.5)
     representable (3.2.0)
       declarative (< 0.1.0)
       trailblazer-option (>= 0.1.1, < 0.2.0)
@@ -636,7 +636,7 @@ GEM
     seedbank (0.5.0)
       rake (>= 10.0)
     semantic_range (3.0.0)
-    shakapacker (7.0.1)
+    shakapacker (7.0.2)
       activesupport (>= 5.2)
       rack-proxy (>= 0.6.1)
       railties (>= 5.2)
@@ -819,7 +819,7 @@ DEPENDENCIES
   sdoc
   seedbank
   selectize-rails!
-  shakapacker (= 7.0.1)
+  shakapacker (= 7.0.2)
   simple_form
   simplecov
   simplecov-lcov
