@@ -1,0 +1,104 @@
+RoundsValidators:
+  AdvancementConditionsValidators:
+    description: |
+      This validator checks that advancement between rounds is correct according to the regulations.
+      This validator doesn't consider some old round types like '0', 'h' and 'b'.
+    link_to_code: https://github.com/thewca/worldcubeassociation.org/blob/master/WcaOnRails/lib/results_validators/advancement_conditions_validator.rb
+    errors:
+      REGULATION_9M1_ERROR:
+        description: |
+          Checks if it violates regulation 9m1, i.e., if there are more than two rounds after a
+          round with 99 or fewer competitors.
+        message: >
+          Round %{round_id} has 99 or fewer competitors but has more than two subsequent rounds,
+          which is not permitted as per Regulation 9m1.
+      REGULATION_9M2_ERROR:
+        description: |
+          Checks if it violates regulation 9m2, i.e., if there are more than one round after a round
+          with 15 or fewer competitors.
+        message: >
+          Round %{round_id} has 15 or fewer competitors but has more than one subsequent round,
+          which is not permitted as per Regulation 9m2.
+      REGULATION_9M3_ERROR:
+        description: |
+          Checks if it violates regulation 9m3, i.e., if there are more than one round after a round
+          with 7 or fewer competitors.
+        message: >
+          Round %{round_id} has 7 or fewer competitors but has at least one subsequent round, which
+          is not permitted as per Regulation 9m3.
+      COMPETED_NOT_QUALIFIED_ERROR:
+        description: |
+          Checks if the advancement condition is based on result and any competitor who competed in
+          a round is not qualified for the next round.
+        message: >
+          Round %{round_id}: %{ids} competed but did not meet the attempt result advancement
+          condition (%{condition}). Please make sure the advancement condition reflects what was
+          used during the competition, and remove the results if needed.
+      OLD_REGULATION_9P_ERROR:
+        description: |
+          Checks if it violates old regulation 9p, i.e., for the competitions between July 20, 2006
+          and April 13, 2010 (inclusive of both days), we will throw error if number of competitors
+          in round is greater than or equal to number of competitors in previous round because at
+          least one person should be eliminated.
+        message: >
+          Round %{round_id}: There must be at least one competitor eliminated, which is required as
+          per Regulation 9p (competitions before April 2010).
+      REGULATION_9P1_ERROR:
+        description: |
+          For the next few errors/warnings, it will be explained using "max_advancing" and
+          "theoretical_number_of_people".
+          The value of "max_advancing" is 75% of number of people in previous round.
+          The value of "theoretical_number_of_people" is the number of people that can be advanced
+          based on advancement condition. Like:
+          - If advancement condition is based on "results", "theoretical_number_of_people" is the
+            number of people who have met the advancement condition.
+          - If advancement condition is based on "percent", "theoretical_number_of_people" is
+            the minimum of people who have valid result (non DNF/DNS result) and the number of
+            people calculated using the percent.
+          - If advancement condition is based on "ranking", "theoretical_number_of_people" is the
+            rank number which is the condition.
+          Checks if it violates regulation 9p1, i.e., if the number of competitors in a round is
+          greater than "max_advancing".
+        message: >
+          Round %{round_id}: Fewer than 25%% of competitors were eliminated, which is not permitted
+          as per Regulation 9p1.
+      ROUND_9P1_ERROR:
+        description: |
+          Checks if "theoretical_number_of_people" is greater than "max_advancing". If yes, we ask
+          them to update the advancement condition.
+        message: >
+          Round %{round_id}: according to the advancement condition (%{condition}), fewer than 25%%
+          of competitors would be eliminated, which is not permitted as per Regulation 9p1. Please
+          update the round information in the manage events page.
+    warnings:
+      TOO_MANY_QUALIFIED_WARNING:
+        description: |
+          Checks if the number of competitors in the round is greater than
+          "theoretical_number_of_people".
+        message: >
+          Round %{round_id}: more competitors qualified than what the advancement condition planned
+          (%{actual} instead of %{expected}, the condition was: %{condition}). Please update the
+          round information in the manage events page.
+      NOT_ENOUGH_QUALIFIED_WARNING:
+        description: |
+          The warning is thrown if both the following conditions are met:
+          - theoretical_number_of_people - number_of_people_in_round >= 3
+          - number_of_people_in_round / theoretical_number_of_people <= 0.8
+        message: >
+          Round %{round_id}: according to the events data, at most %{expected} could have proceed,
+          but only %{actual} competed in the round. Please leave a comment about that (or fix the
+          events data if you applied a different advancement condition).
+PersonsValidators:
+  CaompetitorLimitValidator:
+    description: |
+      For competition with a competitor limit, this validator checks that this limit is respected.
+    link_to_code: https://github.com/thewca/worldcubeassociation.org/blob/master/WcaOnRails/lib/results_validators/competitor_limit_validator.rb
+    warnings:
+      COMPETITOR_LIMIT_WARNING:
+        description: |
+          If competitor limit is enabled and if total number of competitors is more than the
+          competitor limit, warning will be thrown.
+        message: >
+          The number of persons in the competition (%{n_competitors}) is above the competitor limit
+          (%{competitor_limit}). The results of the competitors registered after the competitor
+          limit was reached must be removed.
