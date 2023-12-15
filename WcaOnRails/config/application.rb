@@ -17,6 +17,41 @@ module WcaOnRails
   BOOTED_AT = Time.now
 
   class Application < Rails::Application
+    XERO_CLIENT_ID = "618EC1DC42424075A2B7DBEBF42A86F5"
+    XERO_CLIENT_SECRET = "ut0mOpuXq0GCalYc2npVv9JIFvyydWv8TPWCN6BJo8ZGMaYS"
+
+    CREDENTIALS = {
+      client_id: XERO_CLIENT_ID,
+      client_secret: XERO_CLIENT_SECRET,
+      grant_type: 'client_credentials',
+    }.freeze
+    xero_client = XeroRuby::ApiClient.new(credentials: CREDENTIALS)
+    # token_set = xero_client.get_client_credentials_token
+    contacts = xero_client.accounting_api.get_contacts('').contacts
+    # xero_client.refresh_token_set(token_set)
+    # tenant_id = xero_client.last_connection
+    # if_modified_since = "2020-02-06T12:17:43.202-08:00"
+    # where = 'ContactStatus==#{XeroRuby::Accounting::Contact::ACTIVE}'
+    # order = 'Name ASC'
+    # ids = ["00000000-0000-0000-0000-000000000000"]
+    # page = 1
+    # include_archived = true
+    # summary_only = true
+    # search_term = 'Joe Bloggs'
+    # response = xero_client.accounting_api.get_contacts('', {
+    #   if_modified_since: if_modified_since,
+    #   # where: where,
+    #   order: order,
+    #   ids: ids,
+    #   page: page,
+    #   include_archived: include_archived,
+    #   summary_only: summary_only,
+    #   search_term: search_term,
+    # })
+    puts('DJDJDJ')
+    puts(contacts)
+    puts('DJDJDJ')
+
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.

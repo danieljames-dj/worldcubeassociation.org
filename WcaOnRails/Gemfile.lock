@@ -143,6 +143,7 @@ GEM
       tzinfo (~> 2.0)
     addressable (2.8.5)
       public_suffix (>= 2.0.2, < 6.0)
+    aes_key_wrap (1.1.0)
     after_commit_everywhere (1.3.1)
       activerecord (>= 4.2)
       activesupport
@@ -191,6 +192,7 @@ GEM
       parser (>= 2.4)
       smart_properties
     bigdecimal (3.1.4)
+    bindata (2.4.15)
     bindex (0.8.1)
     binding_of_caller (1.0.0)
       debug_inspector (>= 0.0.1)
@@ -311,6 +313,8 @@ GEM
       base64
       faraday-net_http (>= 2.0, < 3.1)
       ruby2_keywords (>= 0.0.4)
+    faraday-follow_redirects (0.3.0)
+      faraday (>= 1, < 3)
     faraday-net_http (3.0.2)
     faraday-retry (2.2.0)
       faraday (~> 2.0)
@@ -403,6 +407,12 @@ GEM
     js_cookie_rails (2.2.0)
       railties (>= 3.1)
     json (2.7.1)
+    json-jwt (1.16.3)
+      activesupport (>= 4.2)
+      aes_key_wrap
+      bindata
+      faraday (~> 2.0)
+      faraday-follow_redirects
     json-schema (4.1.1)
       addressable (>= 2.8)
     jwt (2.7.1)
@@ -780,6 +790,10 @@ GEM
     websocket-extensions (0.1.5)
     wicked_pdf (2.7.0)
       activesupport
+    xero-ruby (4.3.1)
+      faraday (>= 2.0, < 3.0)
+      json (~> 2.1, >= 2.1.0)
+      json-jwt (~> 1.16, >= 1.16.3)
     xpath (3.2.0)
       nokogiri (~> 1.8)
     zeitwerk (2.6.12)
@@ -900,6 +914,7 @@ DEPENDENCIES
   wca_i18n
   web-console
   wicked_pdf
+  xero-ruby (~> 4.3)
 
 BUNDLED WITH
    2.4.15
