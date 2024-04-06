@@ -187,7 +187,7 @@ RSpec.describe "API Competitions" do
       let!(:competition) { FactoryBot.create(:competition, :future, :with_delegate, :with_organizer, :visible) }
 
       context "when signed in as a board member" do
-        sign_in { FactoryBot.create :user, :board_member }
+        sign_in { UserGroup.board_group.active_roles.sample.user }
 
         it "updates the competition events of an unconfirmed competition" do
           patch api_v0_competition_update_wcif_path(competition), params: create_wcif_with_events(%w(333)).to_json, headers: headers

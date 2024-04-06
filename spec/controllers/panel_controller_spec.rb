@@ -16,7 +16,7 @@ RSpec.describe PanelController do
   end
 
   describe "signed in as board member" do
-    let!(:board_member) { FactoryBot.create :user, :board_member }
+    let!(:board_member) { UserGroup.board_group.active_roles.sample.user }
     before :each do
       sign_in board_member
     end

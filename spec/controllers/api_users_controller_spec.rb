@@ -137,7 +137,7 @@ RSpec.describe Api::V0::UsersController do
     end
 
     it 'correctly returns board to be able to create competitions' do
-      sign_in FactoryBot.create :user, :board_member
+      sign_in UserGroup.board_group.active_roles.sample.user
       get :permissions
       expect(response.status).to eq 200
       json = JSON.parse(response.body)
@@ -145,7 +145,7 @@ RSpec.describe Api::V0::UsersController do
     end
 
     it 'correctly returns board to be able to admin competitions' do
-      sign_in FactoryBot.create :user, :board_member
+      sign_in UserGroup.board_group.active_roles.sample.user
       get :permissions
       expect(response.status).to eq 200
       json = JSON.parse(response.body)

@@ -163,7 +163,7 @@ RSpec.feature "Competition events management" do
     end
 
     scenario "board member can add events", js: true do
-      sign_in FactoryBot.create(:user, :board_member)
+      sign_in UserGroup.board_group.active_roles.sample.user
       visit "/competitions/#{competition.id}/events/edit"
       within_event_panel("333") do
         click_button "Add event"
@@ -174,7 +174,7 @@ RSpec.feature "Competition events management" do
     end
 
     scenario "board member can remove events", js: true do
-      sign_in FactoryBot.create(:user, :board_member)
+      sign_in UserGroup.board_group.active_roles.sample.user
       visit "/competitions/#{competition.id}/events/edit"
 
       within_event_panel("444") do
@@ -244,7 +244,7 @@ RSpec.feature "Competition events management" do
     end
 
     scenario "board member can update events", js: true do
-      sign_in FactoryBot.create(:user, :board_member)
+      sign_in UserGroup.board_group.active_roles.sample.user
       visit "/competitions/#{competition.id}/events/edit"
 
       event_panel = find_event_panel("333")

@@ -18,6 +18,13 @@ RSpec.describe Api::V0::UserRolesController do
       )
     end
 
+    context 'when user is not logged in' do
+      it 'returns list of all roles of a group type' do
+        get :index_for_group_type, params: { group_type: UserGroup.group_types[:board] }
+        expect(JSON.parse(response.body)).to match_array(UserGroup.board_group.roles.as_json)
+      end
+    end
+
     context 'when user is logged in and changing role data' do
       before do
         allow(controller).to receive(:current_user) { user_senior_delegate_role.user }
