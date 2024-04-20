@@ -156,3 +156,5 @@ group :production do
   gem 'newrelic_rpm'
   gem 'wkhtmltopdf-binary-ng'
 end
+
+gem "gemini-ai", "~> 3.2"

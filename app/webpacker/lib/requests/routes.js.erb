@@ -161,6 +161,7 @@ export const translatorsPageUrl = `<%= CGI.unescape(Rails.application.routes.url
 export const editUserAvatarUrl = (userId) => `<%= CGI.unescape(Rails.application.routes.url_helpers.users_avatar_thumbnail_edit_path("${userId}"))%>`;
 
 export const contactUrl = `<%= CGI.unescape(Rails.application.routes.url_helpers.contact_path) %>`
+export const contactMlUrl = `<%= CGI.unescape(Rails.application.routes.url_helpers.contact_ml_path) %>`
 
 export const apiV0Urls = {
   users: {

@@ -1,6 +1,18 @@
 # frozen_string_literal: true
 
 class ContactsController < ApplicationController
+  require "gemini-ai"
+
+  GEMINI_SYSTEM_INSTRUCTIONS = "
+  If somebody wants to know when will they get their WCA ID, say \"you will get the WCA ID only when the results of your first competition is posted, which will usually happen after a week the competition ends.\"
+
+  If somebody wants to change some data in database, tell \"Use database-edit form\".
+
+  For all other questions, just say \"I don't know\".
+  "
+
+  YOUR_API_KEY = "TESTING"
+
   def website_create
     user_data = params.require(:userData)
     name = user_data[:name]
@@ -23,6 +35,24 @@ class ContactsController < ApplicationController
     website_contact.request = request
     website_contact.logged_in_email = current_user&.email || 'None'
     maybe_send_contact_email(website_contact)
+  end
+
+  def contact_ml
+    contact_type = params.require(:contactType)
+    contact_params = params.require(contact_type)
+    message = contact_params[:message]
+    client = Gemini.new(
+      credentials: {
+        service: 'generative-language-api',
+        api_key: YOUR_API_KEY,
+      },
+      options: { model: 'gemini-pro', system_instructions: GEMINI_SYSTEM_INSTRUCTIONS, server_sent_events: true },
+    )
+    response = client.stream_generate_content({ contents: { role: 'user', parts: { text: message } } })
+    puts('DJDJ start')
+    puts(response)
+    puts('DJDJ')
+    render json: { answer: response }
   end
 
   def dob

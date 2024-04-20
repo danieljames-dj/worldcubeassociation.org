@@ -316,9 +316,12 @@ GEM
     erubi (1.12.0)
     et-orbi (1.2.7)
       tzinfo
+    ethon (0.16.0)
+      ffi (>= 1.15.0)
     eu_central_bank (1.7.0)
       money (~> 6.13, >= 6.13.6)
       nokogiri (~> 1.9)
+    event_stream_parser (1.0.0)
     execjs (2.9.1)
     factory_bot (6.4.5)
       activesupport (>= 5.0.0)
@@ -338,6 +341,9 @@ GEM
       net-http
     faraday-retry (2.2.0)
       faraday (~> 2.0)
+    faraday-typhoeus (1.1.0)
+      faraday (~> 2.0)
+      typhoeus (~> 1.4)
     ffi (1.16.3)
     formatador (0.3.0)
     fugit (1.9.0)
@@ -345,6 +351,12 @@ GEM
       raabro (~> 1.4)
     fuzzy-string-match (1.0.1)
       RubyInline (>= 3.8.6)
+    gemini-ai (3.2.0)
+      event_stream_parser (~> 1.0)
+      faraday (~> 2.9)
+      faraday-typhoeus (~> 1.1)
+      googleauth (~> 1.8)
+      typhoeus (~> 1.4, >= 1.4.1)
     gli (2.21.1)
     glob (0.4.0)
     globalid (1.2.1)
@@ -767,6 +779,8 @@ GEM
       camertron-eprun
       cldr-plurals-runtime-rb (~> 1.1)
       tzinfo
+    typhoeus (1.4.1)
+      ethon (>= 0.9.0)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     uber (0.1.0)
@@ -860,6 +874,7 @@ DEPENDENCIES
   faraday
   faraday-retry
   fuzzy-string-match
+  gemini-ai (~> 3.2)
   google-apis-admin_directory_v1
   guard-rspec
   hiredis

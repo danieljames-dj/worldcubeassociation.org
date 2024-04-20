@@ -4,7 +4,7 @@ import {
 } from 'semantic-ui-react';
 import ReCAPTCHA from 'react-google-recaptcha';
 import _ from 'lodash';
-import { contactUrl } from '../../lib/requests/routes.js.erb';
+import { contactUrl, contactMlUrl } from '../../lib/requests/routes.js.erb';
 import useInputState from '../../lib/hooks/useInputState';
 import useSaveAction from '../../lib/hooks/useSaveAction';
 import I18n from '../../lib/i18n';
@@ -67,7 +67,7 @@ export default function ContactForm({ userDetails }) {
       onSubmit={() => {
         if (isFormValid) {
           save(
-            contactUrl,
+            contactMlUrl,
             {
               userData,
               contactType: selectedContactType,

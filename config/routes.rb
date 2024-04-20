@@ -245,6 +245,7 @@ Rails.application.routes.draw do
 
   get 'contact' => 'contacts#index'
   post 'contact' => 'contacts#website_create'
+  post 'contact-ml' => 'contacts#contact_ml'
   get 'contact/dob' => 'contacts#dob'
   post 'contact/dob' => 'contacts#dob_create'
 
