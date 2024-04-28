@@ -400,6 +400,9 @@ Rails.application.routes.draw do
       namespace :wfc do
         resources :xero_users, only: [:index, :create]
         resources :dues_redirects, only: [:index, :create, :destroy]
+        get '/authorize-xero' => 'xero_api#authorize_xero', as: :authorize_xero
+        get '/xero-token-set-from-callback' => 'xero_api#token_set_from_callback', as: :token_set_from_callback
+        patch '/create-contacts' => 'xero_api#create_contacts', as: :create_contacts
       end
     end
   end

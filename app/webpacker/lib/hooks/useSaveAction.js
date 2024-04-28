@@ -16,6 +16,8 @@ const useSaveAction = () => {
   const [saving, setSaving] = useState(false);
 
   const save = useCallback((url, data, onSuccess, options = {}, onError = throwError) => {
+    console.log(data);
+    console.log(JSON.stringify(data));
     setSaving(true);
     fetchJsonOrError(url, {
       headers: {
