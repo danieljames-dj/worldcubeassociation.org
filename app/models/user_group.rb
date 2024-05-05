@@ -20,37 +20,14 @@ class UserGroup < ApplicationRecord
   belongs_to :metadata, polymorphic: true, optional: true
   belongs_to :parent_group, class_name: "UserGroup", optional: true
 
-  has_many :user_roles, foreign_key: "group_id"
+  has_many :roles, foreign_key: "group_id", class_name: "UserRole"
+  has_many :active_roles, -> { active }, foreign_key: "group_id", class_name: "UserRole"
 
   scope :root_groups, -> { where(parent_group: nil) }
   scope :active_groups, -> { where(is_active: true) }
 
   def all_child_groups
     [direct_child_groups, direct_child_groups.map(&:all_child_groups)].flatten
-  end
-
-  def roles_migrated?
-    user_roles.any?
-  end
-
-  # For teams which have groups migrated but not roles, this method will help to get the
-  # corresponding team to fetch the team_members.
-  def team
-    Team.find_by(friendly_id: self.metadata.friendly_id)
-  end
-
-  def roles
-    role_list = self.user_roles.to_a
-    if self.teams_committees? && !self.roles_migrated? && self.team.present?
-      TeamMember.where(team_id: self.team.id).each do |team_member|
-        role_list << team_member.role
-      end
-    end
-    role_list
-  end
-
-  def active_roles
-    self.roles.select { |role| role.is_active? }
   end
 
   def roles_of_direct_child_groups

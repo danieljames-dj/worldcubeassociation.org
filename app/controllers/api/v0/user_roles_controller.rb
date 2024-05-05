@@ -137,15 +137,7 @@ class Api::V0::UserRolesController < Api::V0::ApiController
 
   private def roles_of_group_type(group_type)
     group_ids = UserGroup.where(group_type: group_type).pluck(:id)
-    roles = UserRole.where(group_id: group_ids).to_a # to_a is for the same reason as in index_for_user.
-
-    # Temporary hack to support the old system roles, will be removed once all roles are
-    # migrated to the new system.
-    if group_type == UserGroup.group_types[:teams_committees]
-      roles.concat(UserGroup.teams_committees.flat_map(&:roles))
-    end
-
-    roles
+    UserRole.where(group_id: group_ids).to_a
   end
 
   # Returns a list of roles primarily based on groupType.
