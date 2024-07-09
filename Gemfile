@@ -65,6 +65,7 @@ gem 'carrierwave-aws'
 gem 'aws-sdk-s3'
 gem 'aws-sdk-rds'
 gem 'aws-sdk-cloudfront'
+gem 'aws-sdk-comprehend'
 
 # Pointing to thewca/carrierwave-crop which has a workaround for
 #  https://github.com/kirtithorat/carrierwave-crop/issues/17

@@ -11,6 +11,14 @@ class ContactsController < ApplicationController
     end
   end
 
+  private def classifier_client
+    @classifier_client || Aws::Comprehend::Client.new(
+      region: region_name,
+      credentials: credentials,
+      # ...
+    )
+  end
+
   private def contact_competition(requestor_details, contact_params)
     maybe_send_contact_email(
       ContactCompetition.new(
