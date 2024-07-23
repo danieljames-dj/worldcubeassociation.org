@@ -648,10 +648,17 @@ class User < ApplicationRecord
   end
 
   def panels_with_access
-    panel_list.keys.select { |panel_id| can_access_panel?(panel_id) }
+    permissions[:can_access_panels][:scope]
   end
 
   def permissions
+    panels = []
+    wrt_group_id = GroupsMetadataTeamsCommittees.find_by(friendly_id: 'wrt').user_group.id
+    active_roles.each do |role|
+      if role.group_id == wrt_group_id
+        panels << :wrt
+      end
+    end
     permissions = {
       can_attend_competitions: {
         scope: cannot_register_for_competition_reasons.empty? ? "*" : [],
@@ -681,7 +688,7 @@ class User < ApplicationRecord
         scope: can_access_wfc_senior_matters? ? "*" : [],
       },
       can_access_panels: {
-        scope: panels_with_access,
+        scope: panels.compact.uniq,
       },
     }
     if banned?
