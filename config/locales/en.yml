@@ -1596,6 +1596,8 @@ en:
         calculated: "The estimated WCA Dues for %{limit} competitors are %{estimate}"
         per_competitor: "The estimated WCA Dues per competitor are %{estimate}"
         ajax_error: "There is an error with Dues estimation, possibly because there are no available exchange rates for the selected currency."
+      dues_to_be_invoiced_to:
+        none_set_message: "Currently you have not selected any custom option for whom it should be invoiced to, by default your competition dues will get invoiced to the first delegate in alphabetical order (if you don't have any redirects set up with WFC)."
       labels:
         admin:
           is_confirmed: "Do not let organizers edit this competition"
@@ -1643,6 +1645,7 @@ en:
           donations_enabled: "I want to enable donations additionally to collecting the registration fees"
           refund_policy_percent: "Percent to be refunded"
           refund_policy_limit_date: "Limit date for refunds"
+          dues_to_be_invoiced_to: "Dues to be invoiced to"
         registration:
           opening_date_time: "Registration open"
           closing_date_time: "Registration close"
@@ -1727,6 +1730,7 @@ en:
           donations_enabled: ""
           refund_policy_percent: "For now this number is informational only, refunds will have to be issued manually. If this is set to 0, a sentence will be displayed saying that registration fees won't be refunded under any circumstance."
           refund_policy_limit_date: "Date after which no more refunds will be issued."
+          dues_to_be_invoiced_to: ""
         registration:
           opening_date_time: "Note: Registration open and close are in UTC time"
           closing_date_time: ""
@@ -1787,6 +1791,10 @@ en:
             allow_registration_without:
               "true": "Competitors will be allowed to register for events they're not qualified for (I'll remove them later)"
               "false": "Competitors MUST be qualified to register for an event"
+        invoice_to:
+          delegate: 'Delegate'
+          ro: 'Regional Organization'
+          custom_user: 'Custom User'
         #context: new registration system
     registration_v2:
       pdf:

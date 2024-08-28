@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import {
+  DuesToBeInvoicedTo,
   InputBoolean,
   InputCurrencyAmount,
   InputDate,
@@ -86,6 +87,7 @@ export default function RegistrationFees() {
         <InputCurrencyAmount id="onTheSpotEntryFee" currency={currency} required={canRegOnSite} />
       </ConditionalSection>
       <InputCurrencyAmount id="guestEntryFee" currency={currency} />
+      <DuesToBeInvoicedTo id="duesToBeInvoicedTo" value={{ a: 'test' }} />
       <InputBoolean id="donationsEnabled" />
       <InputNumber id="refundPolicyPercent" min={0} max={100} step={1} defaultValue={0} required />
       <InputDate id="refundPolicyLimitDate" dateTime required />

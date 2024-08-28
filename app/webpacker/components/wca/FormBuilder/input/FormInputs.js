@@ -1,8 +1,12 @@
-import React, { useCallback, useMemo } from 'react';
+import React, {
+  useCallback, useEffect, useMemo, useState,
+} from 'react';
 import {
+  Button,
   Checkbox,
   Form,
   Input,
+  Modal,
   Radio,
   Select,
 } from 'semantic-ui-react';
@@ -15,11 +19,13 @@ import AutonumericField from './AutonumericField';
 import { CompetitionsMap, DraggableMarker, StaticMarker } from './InputMap';
 import { AddChampionshipButton, ChampionshipSelect } from './InputChampionship';
 import UtcDatePicker from '../../UtcDatePicker';
-import { IdWcaSearch } from '../../../SearchWidget/WcaSearch';
+import WcaSearch, { IdWcaSearch } from '../../../SearchWidget/WcaSearch';
 import SEARCH_MODELS from '../../../SearchWidget/SearchModel';
 import { readValueRecursive, useSectionDisabled, useSections } from '../provider/FormSectionProvider';
 import { useFormObjectSection, useFormSectionUpdateAction } from '../EditForm';
 import { useFormContext } from '../provider/FormObjectProvider';
+import i18n from '../../../../lib/i18n';
+import { groupTypes } from '../../../../lib/wca-data.js.erb';
 
 function snakifyId(id, section = []) {
   const idParts = [...section, id];
@@ -430,3 +436,89 @@ export const InputChampionships = wrapInput((props) => {
     </>
   );
 });
+
+export const DuesToBeInvoicedTo = wrapInput((props) => {
+  const [selectInvoicee, setSelectInvoicee] = useState(false);
+  const [invoiceeCategory, setInvoiceeCategory] = useState();
+  const [delegate, setDelegate] = useState();
+
+  const options = ['delegate', 'ro', 'custom_user'].map((option) => ({
+    key: option,
+    value: i18n.t(`competitions.competition_form.choices.invoice_to.${option}`),
+  }));
+
+  return (
+    <>
+      {i18n.t('competitions.competition_form.dues_to_be_invoiced_to.none_set_message')}
+      <Button onClick={() => setSelectInvoicee(true)}>Click here to set custom option</Button>
+      <Modal
+        open={selectInvoicee}
+      >
+        <Modal.Header>Dues Invoice To</Modal.Header>
+        <Modal.Content>
+          {options.map((option, idx) => (
+            <React.Fragment key={option.key}>
+              {idx !== 0 && <br />}
+              <Radio
+                label={option.value}
+                value={option.key}
+                checked={invoiceeCategory === option.key}
+                onChange={() => setInvoiceeCategory(option.key)}
+              />
+            </React.Fragment>
+          ))}
+          {invoiceeCategory === 'delegate' && (
+            <WcaSearch
+              name="user"
+              value={delegate}
+              onChange={setDelegate}
+              multiple={false}
+              model={SEARCH_MODELS.userRole}
+              params={{ groupType: groupTypes.delegate_regions }}
+            />
+          )}
+          <br />
+          <Button>Confirm</Button>
+        </Modal.Content>
+      </Modal>
+    </>
+  );
+
+  return (
+    <>
+      {options.map((option, idx) => (
+        <React.Fragment key={option.key}>
+          {idx !== 0 && <br />}
+          <Radio
+            label={option.value}
+            value={option.key}
+            checked={props.value === option.value}
+            onChange={() => props.onChange(null, { value: option.value })}
+          />
+        </React.Fragment>
+      ))}
+
+      <Input
+        id={props.htmlId}
+        value={props.value}
+        onChange={(ev, value) => {
+          console.log(value);
+          props.onChange(ev, {
+            ...value,
+            value: { test: 'tst' },
+          });
+        }}
+      />
+    </>
+  );
+
+  // return (
+  //   <IdWcaSearch
+  //     id={props.htmlId}
+  //     value={props.value || []}
+  //     onChange={props.onChange}
+  //     model={SEARCH_MODELS.user}
+  //     params={searchParams}
+  //   />
+  // );
+}, ['delegateOnly', 'traineeOnly']);
