@@ -825,6 +825,8 @@ en:
               label: "Edit my profile data (name, country, gender or DOB)"
             report_result_issue:
               label: "Report an issue in a result"
+            remove_personal_data:
+              label: "Remove my personal data"
             other_query:
               label: "Other query"
           message:
@@ -848,6 +850,10 @@ en:
             label: "Reason for the change"
           edit_profile_proof_attach:
             label: "Attach proof"
+          remove_data_confirmation:
+            label: "I understand that this action is absolutely IRREVERSIBLE and any future results earned through official competitions will result in a new WCA ID assignment and will not be linked to any previous official results earned before the removal of data. I also understand that this compromises the integrity of personal data and will erase any personal best times achieved so far."
+          remove_data_proof_attach:
+            label: "Please attach a picture/copy of an official ID verification (passport, driver's license, etc.). On the identification we need at minimum your name and date of birth. Feel free to blur-out/obfuscate any other personal data on the identification."
         wst:
           message:
             label: "Message"

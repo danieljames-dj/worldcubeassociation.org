@@ -7,9 +7,10 @@ import { useDispatch, useStore } from '../../../../lib/providers/StoreProvider';
 import { updateSectionData } from '../../store/actions';
 import EditProfileQuery from './EditProfileQuery';
 import OtherQuery from './OtherQuery';
+import RemovePersonalData from './RemovePersonalData';
 
 const SECTION = 'wrt';
-const QUERY_TYPES = ['edit_profile', 'report_result_issue', 'other_query'];
+const QUERY_TYPES = ['edit_profile', 'report_result_issue', 'remove_personal_data', 'other_query'];
 const QUERY_TYPES_MAP = _.keyBy(QUERY_TYPES, _.camelCase);
 
 export default function Wrt() {
@@ -25,6 +26,8 @@ export default function Wrt() {
     switch (selectedQueryType) {
       case QUERY_TYPES_MAP.editProfile:
         return EditProfileQuery;
+      case QUERY_TYPES_MAP.removePersonalData:
+        return RemovePersonalData;
       default:
         return OtherQuery;
     }

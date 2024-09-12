@@ -40,7 +40,7 @@ export default function ContactForm({
   const { formValues: { contactRecipient: selectedContactRecipient, userData } } = contactFormState;
 
   const isFormValid = (
-    selectedContactRecipient && userData.name && userData.email && captchaValue
+    selectedContactRecipient && userData.name && userData.email
   );
 
   const contactSuccessHandler = () => {
@@ -132,12 +132,12 @@ export default function ContactForm({
           />
           )}
         </FormField>
-        <Button
+        <Form.Button
           disabled={!isFormValid}
           type="submit"
         >
           {I18n.t('page.contacts.form.submit_button')}
-        </Button>
+        </Form.Button>
       </Form>
     </>
   );
