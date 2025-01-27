@@ -424,11 +424,21 @@ class AdminController < ApplicationController
     )
   end
 
-  def complete_persons
-    action_params = params.require(:finish_persons_form)
-                          .permit(:competition_ids)
+  def new_comer_check_details
+    competition_ids = params.require(:competitionIds).split(',')
 
-    @finish_persons = FinishPersonsForm.new(action_params)
+    finish_persons = FinishPersonsForm.new(competition_ids: competition_ids)
+    persons_to_finish = finish_persons.search_persons
+
+    render json: {
+      persons_to_finish: persons_to_finish,
+    }
+  end
+
+  def complete_persons
+    competition_ids = params[:competition_ids].split(',')
+
+    @finish_persons = FinishPersonsForm.new(competition_ids: competition_ids)
     @persons_to_finish = @finish_persons.search_persons
 
     if @persons_to_finish.empty?
@@ -492,7 +502,7 @@ class AdminController < ApplicationController
       can_continue = FinishUnfinishedPersons.unfinished_results_scope(finish_persons.competitions).any?
 
       if can_continue
-        return redirect_to action: :complete_persons, finish_persons_form: { competition_ids: competition_ids }
+        return redirect_to action: :complete_persons, competition_ids: competition_ids
       end
     end
 

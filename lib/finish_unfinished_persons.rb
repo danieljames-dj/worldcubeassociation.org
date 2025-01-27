@@ -11,7 +11,7 @@ module FinishUnfinishedPersons
 
   # The infamous '20 persons limit' is still in place because computing name similarities across the entire DB is expensive.
   # We try a better job by handling it though, as the page tries to load the next batch after submission.
-  MAX_PER_BATCH = 20
+  MAX_PER_BATCH = 3
 
   def self.unfinished_results_scope(competition_ids = nil)
     results_scope = Result.includes(:competition, :inbox_person)
@@ -30,7 +30,7 @@ module FinishUnfinishedPersons
     unfinished_persons = []
     available_id_spots = {} # to make sure that all of the newcomer IDs that we're creating in one batch are unique among each other
 
-    persons_cache = Person.select(:id, :wca_id, :name, :dob, :countryId)
+    persons_cache = Person.select(:id, :wca_id, :name, :dob, :countryId).limit(100)
 
     unfinished_person_results.each do |res|
       next if unfinished_persons.length >= MAX_PER_BATCH
