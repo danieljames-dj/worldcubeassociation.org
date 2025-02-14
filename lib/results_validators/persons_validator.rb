@@ -24,6 +24,7 @@ module ResultsValidators
     LETTER_AFTER_PERIOD_WARNING = :letter_after_period_warning
     SINGLE_LETTER_FIRST_OR_LAST_NAME_WARNING = :single_letter_first_or_last_name_warning
     SINGLE_NAME_WARNING = :single_name_warning
+    COUNTRY_CHANGE_CONFIRM_CITIZENSHIP_WARNING = :country_change_confirm_citizenship
 
     def self.description
       "This validator checks that Persons data make sense with regard to the competition results and the WCA database."

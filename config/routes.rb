@@ -255,6 +255,7 @@ Rails.application.routes.draw do
   scope 'contact' do
     get 'edit_profile' => 'contacts#edit_profile'
     post 'edit_profile' => 'contacts#edit_profile_action', as: :contact_edit_profile_action
+    post 'edit_profile_validators' => 'contacts#edit_profile_validators', as: :contact_edit_profile_validators
     get 'dob' => 'contacts#dob', as: :contact_dob
     post 'dob' => 'contacts#dob_create'
   end

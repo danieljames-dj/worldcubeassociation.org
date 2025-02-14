@@ -108,8 +108,8 @@ class ContactsController < ApplicationController
     end
   end
 
-  private def requestor_info(user, edit_others_profile_mode)
-    if !edit_others_profile_mode
+  private def requestor_info(user, wca_id)
+    if user.wca_id == wca_id
       requestor_role = "Self"
     elsif user.any_kind_of_delegate?
       requestor_role = "Delegate"
@@ -119,52 +119,97 @@ class ContactsController < ApplicationController
     "#{user.name} (#{requestor_role})"
   end
 
-  def edit_profile_action
+  private def edit_profile_form_values
     formValues = JSON.parse(params.require(:formValues), symbolize_names: true)
     edited_profile_details = formValues[:editedProfileDetails]
     edit_profile_reason = formValues[:editProfileReason]
     attachment = params[:attachment]
     wca_id = formValues[:wcaId]
-    person = Person.find_by(wca_id: wca_id)
+    [edited_profile_details, edit_profile_reason, attachment, wca_id]
+  end
+
+  private def edit_profile_authorization_error(current_user, wca_id)
     edit_others_profile_mode = current_user&.wca_id != wca_id
 
     if current_user.nil?
-      return render status: :unauthorized, json: { error: "Cannot request profile change without login" }
+      "Cannot request profile change without login"
     elsif edit_others_profile_mode && !current_user.has_permission?(:can_request_to_edit_others_profile)
-      return render status: :unauthorized, json: { error: "Cannot request to change others profile" }
+      "Cannot request to change others profile"
     end
+  end
 
+  private def edit_profile_changes_requested(person, edited_profile_details)
     profile_to_edit = {
       name: person.name,
       country_iso2: person.country_iso2,
       gender: person.gender,
       dob: person.dob,
     }
-    changes_requested = Person.fields_edit_requestable
-                              .reject { |field| profile_to_edit[field].to_s == edited_profile_details[field].to_s }
-                              .map { |field|
-                                ContactEditProfile::EditProfileChange.new(
-                                  field: field,
-                                  from: profile_to_edit[field],
-                                  to: edited_profile_details[field],
-                                )
-                              }
+    Person.fields_edit_requestable
+          .reject { |field| profile_to_edit[field].to_s == edited_profile_details[field].to_s }
+          .map { |field|
+            ContactEditProfile::EditProfileChange.new(
+              field: field,
+              from: profile_to_edit[field],
+              to: edited_profile_details[field],
+            )
+          }
+  end
+
+  def edit_profile_action
+    edited_profile_details, edit_profile_reason, attachment, wca_id = edit_profile_form_values
+
+    authorization_error = edit_profile_authorization_error(current_user, wca_id)
+    return render status: :unauthorized, json: { error: authorization_error } if authorization_error.present?
+
+    person = Person.find_by(wca_id: wca_id)
+    changes_requested = edit_profile_changes_requested(person, edited_profile_details)
 
     ticket = TicketsEditPerson.create_ticket(wca_id, changes_requested, current_user)
 
     maybe_send_contact_email(
       ContactEditProfile.new(
         your_email: current_user&.email,
-        name: profile_to_edit[:name],
+        name: person.name,
         wca_id: wca_id,
         changes_requested: changes_requested_humanized(changes_requested),
         edit_profile_reason: edit_profile_reason,
-        requestor: requestor_info(current_user, edit_others_profile_mode),
+        requestor: requestor_info(current_user, wca_id),
         ticket: ticket,
         document: attachment,
         request: request,
       ),
     )
+  end
+
+  def edit_profile_validators
+    edited_profile_details, _edit_profile_reason, _attachment, wca_id = edit_profile_form_values
+
+    authorization_error = edit_profile_authorization_error(current_user, wca_id)
+    return render status: :unauthorized, json: { error: authorization_error } if authorization_error.present?
+
+    person = Person.find_by(wca_id: wca_id)
+    changes_requested = edit_profile_changes_requested(person, edited_profile_details)
+
+    validation_issues = []
+
+    changes_requested.each do |change|
+      case change[:field]
+      when :dob
+        validation_issues.concat(
+          ResultsValidators::PersonsValidator.dob_validations(
+            Date.parse(change[:to]),
+          ),
+        )
+      when :country_iso2
+        validation_issues << ResultsValidators::ValidationWarning.new(
+          ResultsValidators::PersonsValidator::COUNTRY_CHANGE_CONFIRM_CITIZENSHIP_WARNING,
+          :persons,
+        )
+      end
+    end
+
+    render json: { validation_issues: validation_issues }
   end
 
   def dob

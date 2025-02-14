@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Form, Message } from 'semantic-ui-react';
 import ReCAPTCHA from 'react-google-recaptcha';
-import { QueryClient, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
 import I18n from '../../lib/i18n';
 import { apiV0Urls, contactEditProfileActionUrl } from '../../lib/requests/routes.js.erb';
@@ -9,13 +9,23 @@ import Loading from '../Requests/Loading';
 import Errored from '../Requests/Errored';
 import useSaveAction from '../../lib/hooks/useSaveAction';
 import { fetchJsonOrError } from '../../lib/requests/fetchWithAuthenticityToken';
+import WCAQueryClientProvider from '../../lib/providers/WCAQueryClientProvider';
 import UtcDatePicker from '../wca/UtcDatePicker';
 import CountrySelector from '../CountrySelector/CountrySelector';
 import GenderSelector from '../GenderSelector/GenderSelector';
+import editProfileValidations from './api/editProfileValidations';
+import EditProfileValidations from './EditProfileValidations';
 
-const CONTACT_EDIT_PROFILE_FORM_QUERY_CLIENT = new QueryClient();
+export default function Wrapper(args) {
+  return (
+    <WCAQueryClientProvider>
+      {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+      <EditProfileForm {...args} />
+    </WCAQueryClientProvider>
+  );
+}
 
-export default function EditProfileForm({
+function EditProfileForm({
   wcaId,
   onContactSuccess,
   recaptchaPublicKey,
@@ -26,12 +36,13 @@ export default function EditProfileForm({
   const [captchaValue, setCaptchaValue] = useState();
   const [captchaError, setCaptchaError] = useState(false);
   const [saveError, setSaveError] = useState();
+  const [modalParams, setModalParams] = useState({ isOpen: false });
   const { save, saving } = useSaveAction();
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['profileData'],
     queryFn: () => fetchJsonOrError(apiV0Urls.persons.show(wcaId)),
-  }, CONTACT_EDIT_PROFILE_FORM_QUERY_CLIENT);
+  });
 
   const profileDetails = data?.data?.person;
 
@@ -43,25 +54,6 @@ export default function EditProfileForm({
   useEffect(() => {
     setEditedProfileDetails(profileDetails);
   }, [profileDetails]);
-
-  const formSubmitHandler = () => {
-    const formData = new FormData();
-
-    formData.append('formValues', JSON.stringify({
-      editedProfileDetails, editProfileReason, wcaId,
-    }));
-    if (proofAttachment) {
-      formData.append('attachment', proofAttachment);
-    }
-
-    save(
-      contactEditProfileActionUrl,
-      formData,
-      onContactSuccess,
-      { method: 'POST', headers: {}, body: formData },
-      setSaveError,
-    );
-  };
 
   const handleEditProfileReasonChange = (e, { value }) => {
     setEditProfileReason(value);
@@ -80,73 +72,122 @@ export default function EditProfileForm({
     value: date,
   });
 
-  if (saving || isLoading) return <Loading />;
-  if (saveError || isError) return <Errored />;
+  const submitEditProfileRequest = () => {
+    //
+  };
+
+  const handleValidationIssues = ({ validation_issues: validationIssues }) => {
+    if (validationIssues.length === 0) {
+      submitEditProfileRequest();
+    } else {
+      setModalParams({
+        isOpen: true,
+        validationIssues,
+      });
+    }
+  };
+
+  const {
+    mutate: doEditProfileValidations,
+    isPending: editProfileValidationsPending,
+    isError: editProfileValidationsError,
+  } = useMutation({
+    mutationFn: editProfileValidations,
+    onSuccess: handleValidationIssues,
+  });
+
+  const buildFormData = () => {
+    const formData = new FormData();
+
+    formData.append('formValues', JSON.stringify({
+      editedProfileDetails, editProfileReason, wcaId,
+    }));
+    if (proofAttachment) {
+      formData.append('attachment', proofAttachment);
+    }
+
+    return formData;
+  };
+
+  const checkEditProfileValidations = () => {
+    const formData = buildFormData();
+    doEditProfileValidations(formData);
+  };
+
+  if (saving || isLoading || editProfileValidationsPending) return <Loading />;
+  if (saveError || isError || editProfileValidationsError) return <Errored />;
 
   return (
-    <Form onSubmit={formSubmitHandler}>
-      <Form.Input
-        label={I18n.t('activerecord.attributes.user.name')}
-        name="name"
-        value={editedProfileDetails?.name}
-        onChange={handleFormChange}
-        required
-      />
-      <CountrySelector
-        name="country_iso2"
-        countryIso2={editedProfileDetails?.country_iso2}
-        onChange={handleFormChange}
-      />
-      <GenderSelector
-        name="gender"
-        gender={editedProfileDetails?.gender}
-        onChange={handleFormChange}
-      />
-      <Form.Field
-        label={I18n.t('activerecord.attributes.user.dob')}
-        name="dob"
-        control={UtcDatePicker}
-        showYearDropdown
-        dateFormatOverride="yyyy-MM-dd"
-        dropdownMode="select"
-        isoDate={editedProfileDetails?.dob}
-        onChange={handleDobChange}
-        required
-      />
-      <Form.TextArea
-        label={I18n.t('page.contact_edit_profile.form.edit_reason.label')}
-        name="editProfileReason"
-        required
-        value={editProfileReason}
-        onChange={handleEditProfileReasonChange}
-      />
-      <Form.Input
-        label={I18n.t('page.contact_edit_profile.form.proof_attach.label')}
-        type="file"
-        onChange={handleProofUpload}
-      />
-      <Form.Field>
-        <ReCAPTCHA
-          sitekey={recaptchaPublicKey}
+    <>
+      <Form onSubmit={checkEditProfileValidations}>
+        <Form.Input
+          label={I18n.t('activerecord.attributes.user.name')}
+          name="name"
+          value={editedProfileDetails?.name}
+          onChange={handleFormChange}
+          required
+        />
+        <CountrySelector
+          name="country_iso2"
+          countryIso2={editedProfileDetails?.country_iso2}
+          onChange={handleFormChange}
+        />
+        <GenderSelector
+          name="gender"
+          gender={editedProfileDetails?.gender}
+          onChange={handleFormChange}
+        />
+        <Form.Field
+          label={I18n.t('activerecord.attributes.user.dob')}
+          name="dob"
+          control={UtcDatePicker}
+          showYearDropdown
+          dateFormatOverride="yyyy-MM-dd"
+          dropdownMode="select"
+          isoDate={editedProfileDetails?.dob}
+          onChange={handleDobChange}
+          required
+        />
+        <Form.TextArea
+          label={I18n.t('page.contact_edit_profile.form.edit_reason.label')}
+          name="editProfileReason"
+          required
+          value={editProfileReason}
+          onChange={handleEditProfileReasonChange}
+        />
+        <Form.Input
+          label={I18n.t('page.contact_edit_profile.form.proof_attach.label')}
+          type="file"
+          onChange={handleProofUpload}
+        />
+        <Form.Field>
+          <ReCAPTCHA
+            sitekey={recaptchaPublicKey}
           // onChange is a mandatory parameter for ReCAPTCHA. According to the documentation, this
           // is called when user successfully completes the captcha, hence we are assuming that any
           // existing errors will be cleared when onChange is called.
-          onChange={setCaptchaValue}
-          onErrored={setCaptchaError}
-        />
-        {captchaError && (
+            onChange={setCaptchaValue}
+            onErrored={setCaptchaError}
+          />
+          {captchaError && (
           <Message
             error
             content={I18n.t('page.contact_edit_profile.form.captcha.validation_error')}
           />
-        )}
-      </Form.Field>
-      <Form.Button
-        type="submit"
-        disabled={isSubmitDisabled}
-      >
-        {I18n.t('page.contact_edit_profile.form.submit_edit_request_button.label')}
-      </Form.Button>
-    </Form>
+          )}
+        </Form.Field>
+        <Form.Button
+          type="submit"
+          disabled={isSubmitDisabled}
+        >
+          {I18n.t('page.contact_edit_profile.form.submit_edit_request_button.label')}
+        </Form.Button>
+      </Form>
+      <EditProfileValidations
+        modalParams={modalParams}
+        setModalParams={setModalParams}
+        submitEditProfileRequest={submitEditProfileRequest}
+      />
+    </>
   );
 }
