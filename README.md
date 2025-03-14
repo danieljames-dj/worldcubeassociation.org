@@ -38,3 +38,7 @@ If you want to query WCA data via an API, the [Unofficial API](https://wca-rest-
 
 If the above links don't give you what you need, feel free to open an issue or [contact us](https://www.worldcubeassociation.org/contact)
 
+TODO:
+1. Test URL opening from edit results page
+2. Test URL opening from edit persons page
+3. Read the information

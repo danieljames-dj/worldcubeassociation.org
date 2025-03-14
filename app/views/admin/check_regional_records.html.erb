@@ -1,33 +1,6 @@
 <% provide(:title, "Check regional records") %>
 
 <div class="container">
-  <h1>Check records</h1>
-  <p>
-    This computes regional record markers for all successful results (value>0). If a result has a stored or computed
-    regional record marker, it is displayed. If the two markers differ, they're shown in red/green.
-  </p>
-
-  <p>
-    Only strictly previous competitions (other.<b>end</b>Date < this.<b>start</b>Date) are used to compare, not
-    overlapping competitions. Thus I might wrongfully compute a too good record status (because a result was actually
-    beaten earlier in an overlapping competition) but I should never wrongfully compute a too bad record status.
-  </p>
-
-  <p>
-    Inside the same competition, results are sorted first by round, then by value, and then they're declared records
-    on a first-come-first-served basis. This results in the records-are-updated-at-the-end-of-each-round rule you
-    requested.
-  </p>
-
-  <p>
-    A result does not need to beat another to get a certain record status, equaling is good enough.
-  </p>
-
-  <p>
-    If you choose 'All' both for event and competition, I only show the differences (otherwise the page would be
-    huge).
-  </p>
-
   <%= alert :warning do %>
     This script relies on auxiliary tables which are computed as part of <%= link_to "running CAD", admin_compute_auxiliary_data_path, target: :_blank %>.
     <br/>
