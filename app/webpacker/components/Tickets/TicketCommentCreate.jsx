@@ -1,5 +1,7 @@
 import React from 'react';
-import { Button, Modal } from 'semantic-ui-react';
+import {
+  Button, Dropdown, Header, Modal,
+} from 'semantic-ui-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import MarkdownEditor from '../wca/FormBuilder/input/MarkdownEditor';
 import useInputState from '../../lib/hooks/useInputState';
@@ -43,6 +45,14 @@ export default function TicketCommentCreate({
           id="new-comment"
           value={comment}
           onChange={setComment}
+        />
+        <Header>Comment Action</Header>
+        <Dropdown
+          options={[
+            { key: 'test', value: 'Test', text: 'Test' },
+            { key: 'test1', value: 'Test1', text: 'Test 1' },
+            { key: 'test2', value: 'Test2', text: 'Test 2' },
+          ]}
         />
       </Modal.Content>
       <Modal.Actions>
