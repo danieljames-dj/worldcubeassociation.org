@@ -215,6 +215,7 @@ Rails.application.routes.draw do
     get 'reassign-connected-wca-id' => 'admin#reassign_wca_id', as: :admin_reassign_wca_id
   end
   get 'panel-page/:id' => 'panel#panel_page', as: :panel_page
+  get 'panel-page/:id/panel' => 'panel#panel_page_panel', as: :panel_page_panel
   scope 'tickets' do
     get 'details_before_anonymization' => 'tickets#details_before_anonymization', as: :tickets_details_before_anonymization
     post 'anonymize' => 'tickets#anonymize', as: :tickets_anonymize

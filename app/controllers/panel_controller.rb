@@ -99,13 +99,36 @@ class PanelController < ApplicationController
   end
 
   def panel_page
-    panel_page_id = params.require(:id)
-    panel_with_panel_page = current_user.panels_with_access&.find { |panel| User.panel_list[panel][:pages].include?(panel_page_id) }
+    @id = params.require(:id)
+    # panel_page_id = params.require(:id)
+    # panel_with_panel_page = current_user.panels_with_access&.find { |panel| User.panel_list[panel][:pages].include?(panel_page_id) }
+
+    # return head :unauthorized if panel_with_panel_page.nil?
+
+    # query_params = request.query_parameters.except(:id)
+    # redirect_to panel_index_path(panel_id: panel_with_panel_page, anchor: panel_page_id, **query_params)
+  end
+
+  def panel_page_panel
+    id = params.require(:id)
+
+    panel_with_panel_page = current_user&.panels_with_access&.find { |panel| User.panel_list[panel][:pages].include?(id) }
 
     return head :unauthorized if panel_with_panel_page.nil?
 
-    query_params = request.query_parameters.except(:id)
-    redirect_to panel_index_path(panel_id: panel_with_panel_page, anchor: panel_page_id, **query_params)
+    panel_details = User.panel_list[panel_with_panel_page]
+    pages = panel_details[:pages]
+    # This awkward mapping is necessary because `panel_notifications` returns callables
+    #   which compute the value _if needed_. The point is to reduce workload, not every time
+    #   that `User.panel_notifications` is called should trigger an actual computation.
+    notifications = User.panel_notifications.slice(*pages).transform_values(&:call)
+
+    render json: {
+      id: panel_with_panel_page,
+      pages: pages,
+      name: panel_details[:name],
+      notifications: notifications,
+    }
   end
 
   def cronjob_details
