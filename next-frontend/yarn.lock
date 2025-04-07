@@ -7617,7 +7617,7 @@ __metadata:
     react: "npm:^19.1.0"
     react-dom: "npm:^19.1.0"
     react-icons: "npm:^5.5.0"
-    swagger-ui-react: "npm:^5.20.2"
+    swagger-ui-react: "npm:^5.20.7"
     typescript: "npm:^5"
   languageName: unknown
   linkType: soft
@@ -9724,9 +9724,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"swagger-ui-react@npm:^5.20.2":
-  version: 5.20.2
-  resolution: "swagger-ui-react@npm:5.20.2"
+"swagger-ui-react@npm:^5.20.7":
+  version: 5.20.7
+  resolution: "swagger-ui-react@npm:5.20.7"
   dependencies:
     "@babel/runtime-corejs3": "npm:^7.26.10"
     "@scarf/scarf": "npm:=1.4.0"
@@ -9764,7 +9764,7 @@ __metadata:
   peerDependencies:
     react: ">=16.8.0 <19"
     react-dom: ">=16.8.0 <19"
-  checksum: 10c0/9339a30ba34d35af5c8ca572ab783bd70966584ea9c00f9808245f793cc0c22cbe8a84badb1c806e4041377468d2dcab3329c8d864a15ec58381927343604ef0
+  checksum: 10c0/c286f4f21e115b8b5aafd0438c195c5a57eecf5d21a6fddf247fb169f12bf370e728bec5925ba4e455ca7ec47c7707f0eff95a36f7aa55fc52cb9b44b639e59d
   languageName: node
   linkType: hard
 
