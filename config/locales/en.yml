@@ -304,6 +304,7 @@ en:
         delegate_reports_region: "I only want to receive Delegate Reports for the following region"
         user_preferred_events: "Preferred events"
         otp_attempt: "Enter your two-factor authentication code:"
+        should_claim_wca_id: "Please check this if you have competed in a WCA competition before, so that you can claim your WCA ID."
       #context: a registration to a competition
       registration:
         guests: "Guests"
@@ -661,6 +662,8 @@ en:
     mailer:
       confirmation_instructions:
         subject: "Please confirm your new email address"
+    after_sign_in:
+      wca_claim_alert: "During sign up, you informed that you have competed in a WCA competition in past. You can claim the WCA ID using <a href='%{claim_wca_id_path}'>this link</a>."
   #context: Key used in external code that the WCA use
   wca:
     # These are locales used in WCA's app relevant to external gems, but which are not present in the gem's default locale file.
