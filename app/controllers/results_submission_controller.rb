@@ -18,7 +18,7 @@ class ResultsSubmissionController < ApplicationController
 
     # Do json analysis + insert record in db, then redirect to check inbox
     # (and delete existing record if any)
-    upload_json_params = params.require(:upload_json).permit(:results_file)
+    upload_json_params = params.require(:results_file)
     upload_json_params[:competition_id] = @competition.id
     @upload_json = UploadJson.new(upload_json_params)
 
