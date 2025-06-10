@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_06_04_143939) do
+ActiveRecord::Schema[7.2].define(version: 2025_06_10_023631) do
   create_table "active_storage_attachments", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -1338,6 +1338,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_04_143939) do
     t.string "wca_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "change_type"
   end
 
   create_table "tickets_edit_person_fields", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|

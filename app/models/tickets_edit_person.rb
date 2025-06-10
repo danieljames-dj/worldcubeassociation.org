@@ -8,6 +8,11 @@ class TicketsEditPerson < ApplicationRecord
     closed: "closed",
   }
 
+  enum :change_type, {
+    change_fix: "change_fix",
+    change_update: "change_update",
+  }
+
   has_one :ticket, as: :metadata
   has_many :tickets_edit_person_fields
 
