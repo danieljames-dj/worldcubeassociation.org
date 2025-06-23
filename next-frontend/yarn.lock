@@ -3276,9 +3276,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@payloadcms/richtext-lexical@npm:^3.41.0":
-  version: 3.41.0
-  resolution: "@payloadcms/richtext-lexical@npm:3.41.0"
+"@payloadcms/richtext-lexical@npm:^3.43.0":
+  version: 3.43.0
+  resolution: "@payloadcms/richtext-lexical@npm:3.43.0"
   dependencies:
     "@lexical/headless": "npm:0.28.0"
     "@lexical/html": "npm:0.28.0"
@@ -3290,8 +3290,8 @@ __metadata:
     "@lexical/selection": "npm:0.28.0"
     "@lexical/table": "npm:0.28.0"
     "@lexical/utils": "npm:0.28.0"
-    "@payloadcms/translations": "npm:3.41.0"
-    "@payloadcms/ui": "npm:3.41.0"
+    "@payloadcms/translations": "npm:3.43.0"
+    "@payloadcms/ui": "npm:3.43.0"
     "@types/uuid": "npm:10.0.0"
     acorn: "npm:8.12.1"
     bson-objectid: "npm:2.0.4"
@@ -3310,11 +3310,11 @@ __metadata:
   peerDependencies:
     "@faceless-ui/modal": 3.0.0-beta.2
     "@faceless-ui/scroll-info": 2.0.0
-    "@payloadcms/next": 3.41.0
-    payload: 3.41.0
+    "@payloadcms/next": 3.43.0
+    payload: 3.43.0
     react: ^19.0.0 || ^19.0.0-rc-65a56d0e-20241020
     react-dom: ^19.0.0 || ^19.0.0-rc-65a56d0e-20241020
-  checksum: 10c0/a8ee3c5a485e1a2d934831b0f2ab2f636d72d7acf280a1b94acd2fe456c36b44aec16cfa1f7b5486d52d441521a6e32a32dc75d8fef5eb7d73de990bc6e299ef
+  checksum: 10c0/d5915bae2bba2695d0d36cc8a07d2928040b87b39d36b625fdcce120c9f326e19fc99ef5e9779334cdd6ccec94c03f5b961b28cd9a38c6fdfb79abc767630bd3
   languageName: node
   linkType: hard
 
@@ -3324,6 +3324,15 @@ __metadata:
   dependencies:
     date-fns: "npm:4.1.0"
   checksum: 10c0/a55931312fe011b3118192c8ae7c0295a741c6b4bd19d3340411f1c85526ae6286a1451cd18a9f1e418abb958062968e95d7532d370eb0c88925efec63ebad99
+  languageName: node
+  linkType: hard
+
+"@payloadcms/translations@npm:3.43.0":
+  version: 3.43.0
+  resolution: "@payloadcms/translations@npm:3.43.0"
+  dependencies:
+    date-fns: "npm:4.1.0"
+  checksum: 10c0/b8bffd7fa5202da0600fba2f150246bd8dd969e5ba2f033ed4a40cf81458ccd1fba3c63e824bd0aba8d3eed4be0cdddf1883ff6b3fa9872013b76e94b938517b
   languageName: node
   linkType: hard
 
@@ -3360,6 +3369,42 @@ __metadata:
     react: ^19.0.0 || ^19.0.0-rc-65a56d0e-20241020
     react-dom: ^19.0.0 || ^19.0.0-rc-65a56d0e-20241020
   checksum: 10c0/9cac69a278c5b46006a47f97065003ed69faf265fe273dd729ccac7495a3d517a9680ae30c5cc1882ccc14f96d0355e1b6912c75b936bc850b3654ab5d1ba290
+  languageName: node
+  linkType: hard
+
+"@payloadcms/ui@npm:3.43.0":
+  version: 3.43.0
+  resolution: "@payloadcms/ui@npm:3.43.0"
+  dependencies:
+    "@date-fns/tz": "npm:1.2.0"
+    "@dnd-kit/core": "npm:6.0.8"
+    "@dnd-kit/sortable": "npm:7.0.2"
+    "@dnd-kit/utilities": "npm:3.2.2"
+    "@faceless-ui/modal": "npm:3.0.0-beta.2"
+    "@faceless-ui/scroll-info": "npm:2.0.0"
+    "@faceless-ui/window-info": "npm:3.0.1"
+    "@monaco-editor/react": "npm:4.7.0"
+    "@payloadcms/translations": "npm:3.43.0"
+    bson-objectid: "npm:2.0.4"
+    date-fns: "npm:4.1.0"
+    dequal: "npm:2.0.3"
+    md5: "npm:2.3.0"
+    object-to-formdata: "npm:4.5.1"
+    qs-esm: "npm:7.0.2"
+    react-datepicker: "npm:7.6.0"
+    react-image-crop: "npm:10.1.8"
+    react-select: "npm:5.9.0"
+    scheduler: "npm:0.25.0"
+    sonner: "npm:^1.7.2"
+    ts-essentials: "npm:10.0.3"
+    use-context-selector: "npm:2.0.0"
+    uuid: "npm:10.0.0"
+  peerDependencies:
+    next: ^15.2.3
+    payload: 3.43.0
+    react: ^19.0.0 || ^19.0.0-rc-65a56d0e-20241020
+    react-dom: ^19.0.0 || ^19.0.0-rc-65a56d0e-20241020
+  checksum: 10c0/33ce23d8f16b10be64c158f106fa7c3e2cc91c2b26fa1b38b2d5a4dcf6508cdfd0009e8a850532f396d41dfc74ead75ab8e3755036dd30592e0ceb85f7ad453e
   languageName: node
   linkType: hard
 
@@ -11982,7 +12027,7 @@ __metadata:
     "@payloadcms/db-sqlite": "npm:^3.41.0"
     "@payloadcms/live-preview-react": "npm:^3.41.0"
     "@payloadcms/next": "npm:^3.41.0"
-    "@payloadcms/richtext-lexical": "npm:^3.41.0"
+    "@payloadcms/richtext-lexical": "npm:^3.43.0"
     "@stylistic/eslint-plugin": "npm:^4.4.1"
     "@tanstack/eslint-plugin-query": "npm:^5.78.0"
     "@tanstack/react-query": "npm:^5.80.6"
