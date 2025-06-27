@@ -9,4 +9,14 @@ class TicketsMailer < ApplicationMailer
       subject: "[Ticket #{ticket_comment.ticket.id}] New comment added",
     )
   end
+
+  def notify_log(ticket_log)
+    stakeholders = ticket_log.ticket.ticket_stakeholders.map(&:stakeholder)
+    recipient_emails = stakeholders.map(&:email)
+
+    mail(
+      bcc: recipient_emails,
+      subject: "[Ticket #{ticket_comment.ticket.id}] New comment added",
+    )
+  end
 end
