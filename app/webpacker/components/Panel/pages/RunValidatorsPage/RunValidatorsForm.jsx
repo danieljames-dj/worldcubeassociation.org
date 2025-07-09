@@ -149,6 +149,7 @@ function RunValidatorsForm({ competitionIds }) {
         isError={isError}
         error={error}
         showCompetitionNameOnOutput={showCompetitionNameOnOutput}
+        title="Validation Output"
       />
     </>
   );

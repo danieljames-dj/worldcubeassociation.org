@@ -24,7 +24,16 @@
     isWrtViewing: true,
   }) %>
 
-  <%= render "results_submission/check_results_panel", results_validator: @results_validator %>
+  <%= react_component("Panel/pages/RunValidatorsPage/ValidationOutput", {
+    validationOutput: {
+      has_results: @results_validator.any_results?,
+      validators: @results_validator.validators,
+      infos: @results_validator.infos,
+      errors: @results_validator.errors,
+      warnings: @results_validator.warnings,
+    },
+    title: "Check imported results"
+  }) %>
 
   <%= render "results_submission/results_preview_panel", results_validator: @results_validator %>
 <% end %>

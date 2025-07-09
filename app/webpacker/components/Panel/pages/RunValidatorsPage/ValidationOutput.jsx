@@ -6,7 +6,7 @@ import Errored from '../../../Requests/Errored';
 import ValidationListView from './ValidationListView';
 
 export default function ValidationOutput({
-  validationOutput, isPending, isError, error, showCompetitionNameOnOutput,
+  validationOutput, isPending, isError, error, showCompetitionNameOnOutput, title,
 }) {
   if (isPending) return <Loading />;
   if (isError) return <Errored error={error} />;
@@ -19,7 +19,7 @@ export default function ValidationOutput({
 
   return (
     <>
-      <Header>Validation Output</Header>
+      <Header>{title}</Header>
       {['infos', 'errors', 'warnings'].map((validationType) => {
         const validations = validationOutput[validationType];
         // Validation output needs to be shown for warnings and errors even if there are no
