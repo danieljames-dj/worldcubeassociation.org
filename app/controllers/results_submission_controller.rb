@@ -31,7 +31,7 @@ class ResultsSubmissionController < ApplicationController
   end
 
   def upload_json
-    competition = competition_from_params
+    competition = competition_from_params(associations: { competition_events: [:rounds] })
 
     # Only admins can upload results for the competitions where results are already submitted.
     if competition.results_submitted? && !current_user.can_admin_results?
@@ -42,21 +42,102 @@ class ResultsSubmissionController < ApplicationController
 
     # Do json analysis + insert record in db, then redirect to check inbox
     # (and delete existing record if any)
-    upload_json = UploadJson.new({
-                                   results_file: params.require(:results_file),
-                                   competition_id: competition.id,
-                                 })
+    results_file = params.require(:results_file)
+    results_json_str = results_file.read
+    results_file.rewind
+    parsed_json = JSON.parse(results_json_str)
+    errors = []
 
-    mark_result_submitted = ActiveRecord::Type::Boolean.new.cast(params.require(:mark_result_submitted))
-    store_uploaded_json = ActiveRecord::Type::Boolean.new.cast(params.require(:store_uploaded_json))
+    begin
+      # Parse the json first
+      JSON::Validator.validate!(ResultsValidators::JSONSchemas::RESULT_JSON_SCHEMA, parsed_json)
+      errors << "Result file is not for this competition but for #{parsed_json['competitionId']}!" if parsed_json["competitionId"] != competition.id
+    rescue JSON::ParserError
+      errors << "Result file must be a JSON file from the Workbook Assistant"
+    rescue JSON::Schema::ValidationError => e
+      errors << "Result file has errors: #{e.message}"
+    end
 
-    # This makes sure the json structure is valid!
-    return render status: :unprocessable_entity, json: { error: upload_json.errors.full_messages } unless upload_json.import_to_inbox
+    persons_to_import = []
+    parsed_json["persons"].each do |p|
+      new_person_attributes = {
+        id: p["id"],
+        wca_id: p["wcaId"],
+        competition_id: competition_id,
+        name: p["name"],
+        country_iso2: p["countryId"],
+        gender: p["gender"],
+        dob: p["dob"],
+      }
+      # mask uploaded DOB on staging to avoid accidentally importing PII
+      new_person_attributes["dob"] = "1954-12-04" if Rails.env.production? && !EnvConfig.WCA_LIVE_SITE?
+      persons_to_import << InboxPerson.new(new_person_attributes)
+    end
+    results_to_import = []
+    scrambles_to_import = []
+    parsed_json["events"].each do |event|
+      competition_event = competition.competition_events.find { |ce| ce.event_id == event["eventId"] }
+      event["rounds"].each do |round|
+        # Find the corresponding competition round and get the actual round_type_id
+        # (in case the incoming one doesn't correspond to cutoff presence).
+        incoming_round_type_id = round["roundId"]
+        competition_round = competition_event.rounds.find do |cr|
+          [incoming_round_type_id, RoundType.toggle_cutoff(incoming_round_type_id)].include?(cr.round_type_id)
+        end
+        round_type_id = competition_round&.round_type_id || incoming_round_type_id
 
-    competition.touch(:results_submitted_at) if !competition.results_submitted? && mark_result_submitted
-    competition.uploaded_jsons.create!(json_str: upload_json.results_json_str) if store_uploaded_json
+        # Import results for round
+        round["results"].each do |result|
+          individual_results = result["results"]
+          # Pad the results with 0 up to 5 results
+          individual_results.fill(0, individual_results.length...5)
+          new_result_attributes = {
+            person_id: result["personId"],
+            pos: result["position"],
+            event_id: event["eventId"],
+            round_type_id: round_type_id,
+            round_id: competition_round&.id,
+            format_id: round["formatId"],
+            best: result["best"],
+            average: result["average"],
+            value1: individual_results[0],
+            value2: individual_results[1],
+            value3: individual_results[2],
+            value4: individual_results[3],
+            value5: individual_results[4],
+          }
+          new_res = InboxResult.new(new_result_attributes)
+          # Using this way of setting the attribute saves one SELECT per result
+          # to validate the competition presence.
+          # (a lot of time considering all the results to import!)
+          new_res.competition = competition
+          results_to_import << new_res
+        end
 
-    render status: :ok, json: { success: true }
+        # Import scrambles for round
+        round["groups"].each do |group|
+          %w[scrambles extraScrambles].each do |scramble_type|
+            group[scramble_type]&.each_with_index do |scramble, index|
+              new_scramble_attributes = {
+                competition_id: competition_id,
+                event_id: event["eventId"],
+                round_type_id: round_type_id,
+                round_id: competition_round&.id,
+                group_id: group["group"],
+                is_extra: scramble_type == "extraScrambles",
+                scramble_num: index + 1,
+                scramble: scramble,
+              }
+              scrambles_to_import << Scramble.new(new_scramble_attributes)
+            end
+          end
+        end
+      end
+    end
+
+    return render status: :unprocessable_entity, json: { error: errors } if errors.count.positive?
+
+    import_results(competition, persons_to_import, scrambles_to_import, results_to_import, results_json_str)
   end
 
   def import_from_live
@@ -122,28 +203,7 @@ class ResultsSubmissionController < ApplicationController
       end
     end
 
-    errors = []
-    ActiveRecord::Base.transaction do
-      InboxPerson.where(competition_id: competition.id).delete_all
-      InboxResult.where(competition_id: competition.id).delete_all
-      Scramble.where(competition_id: competition.id).delete_all
-      InboxPerson.import!(persons_to_import)
-      InboxResult.import!(results_to_import)
-      Scramble.import!(scrambles_to_import)
-    rescue ActiveRecord::RecordInvalid => e
-      object = e.record
-      errors << if object.instance_of?(InboxPerson)
-                  "Person #{object.name} is invalid (#{e.message}), please fix it!"
-                elsif object.instance_of?(InboxResult)
-                  "Result for person #{object.person_id} in '#{Round.name_from_attributes_id(object.event_id, object.round_type_id)}' is invalid (#{e.message}), please fix it!"
-                else
-                  "An invalid record prevented the results from being created: #{e.message}"
-                end
-    end
-
-    return render status: :unprocessable_entity, json: { error: errors } if errors.any?
-
-    render status: :ok, json: { success: true }
+    import_results(competition, persons_to_import, scrambles_to_import, results_to_import, nil)
   end
 
   def create
@@ -159,7 +219,43 @@ class ResultsSubmissionController < ApplicationController
     render status: :ok, json: { success: true }
   end
 
-  private def competition_from_params
-    Competition.find(params[:competition_id])
+  private def competition_from_params(associations: {})
+    Competition.includes(associations).find(params[:competition_id])
+  end
+
+  private def import_results(competition, persons_to_import, scrambles_to_import, results_to_import, results_json_str)
+    errors = []
+
+    begin
+      ActiveRecord::Base.transaction do
+        InboxPerson.where(competition_id: competition.id).delete_all
+        InboxResult.where(competition_id: competition.id).delete_all
+        Scramble.where(competition_id: competition.id).delete_all
+        InboxPerson.import!(persons_to_import)
+        Scramble.import!(scrambles_to_import)
+        InboxResult.import!(results_to_import)
+      end
+    rescue ActiveRecord::RecordNotUnique
+      errors << "Duplicate record found while uploading results. Maybe there is a duplicate personId in the JSON?"
+    rescue ActiveRecord::RecordInvalid => e
+      object = e.record
+      errors << if object.instance_of?(Scramble)
+                  "Scramble in '#{Round.name_from_attributes_id(object.event_id, object.round_type_id)}' is invalid (#{e.message}), please fix it!"
+                elsif object.instance_of?(InboxPerson)
+                  "Person #{object.name} is invalid (#{e.message}), please fix it!"
+                elsif object.instance_of?(InboxResult)
+                  "Result for person #{object.person_id} in '#{Round.name_from_attributes_id(object.event_id, object.round_type_id)}' is invalid (#{e.message}), please fix it!"
+                else
+                  "An invalid record prevented the results from being created: #{e.message}"
+                end
+    end
+
+    return render status: :unprocessable_entity, json: { error: errors } if errors.any?
+
+    competition.touch(:results_submitted_at) if !competition.results_submitted? && params[:mark_result_submitted] && ActiveRecord::Type::Boolean.new.cast(params.require(:mark_result_submitted))
+
+    competition.uploaded_jsons.create!(json_str: results_json_str) if results_json_str.present? && params[:store_uploaded_json] && ActiveRecord::Type::Boolean.new.cast(params.require(:store_uploaded_json))
+
+    render status: :ok, json: { success: true }
   end
 end
