@@ -642,6 +642,7 @@ class User < ApplicationRecord
       fixResults
       mergeProfiles
       reassignConnectedWcaId
+      mergeUsers
     ].index_with { |panel_page| panel_page.to_s.underscore.dasherize }
   end
 
@@ -701,6 +702,7 @@ class User < ApplicationRecord
           panel_pages[:fixResults],
           panel_pages[:mergeProfiles],
           panel_pages[:reassignConnectedWcaId],
+          panel_pages[:mergeUsers],
         ],
       },
       wst: {

@@ -38,6 +38,7 @@ import ComputeAuxiliaryDataPage from './pages/ComputeAuxiliaryDataPage';
 import GenerateDataExportsPage from './pages/GenerateDataExportsPage';
 import CheckRecordsPage from './pages/CheckRecordsPage';
 import FixResultsPage from './pages/FixResultsPage';
+import MergeUsersPage from './pages/MergeUsersPage';
 
 export default {
   [PANEL_PAGES.postingDashboard]: {
@@ -187,5 +188,9 @@ export default {
   [PANEL_PAGES.reassignConnectedWcaId]: {
     name: 'Reassign Connected WCA ID',
     link: reassignConnectedWcaIdUrl,
+  },
+  [PANEL_PAGES.mergeUsers]: {
+    name: 'Merge Users',
+    component: MergeUsersPage,
   },
 };

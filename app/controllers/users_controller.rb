@@ -5,6 +5,7 @@ class UsersController < ApplicationController
   before_action :check_recent_authentication!, only: %i[enable_2fa disable_2fa regenerate_2fa_backup_codes]
   before_action :set_recent_authentication!, only: %i[edit update enable_2fa disable_2fa]
   before_action -> { redirect_to_root_unless_user(:can_admin_results?) }, only: %i[admin_search]
+  before_action -> { redirect_to_root_unless_user(:can_admin_results?) }, only: %i[merge]
 
   RECENT_AUTHENTICATION_DURATION = 10.minutes.freeze
 
@@ -43,6 +44,49 @@ class UsersController < ApplicationController
         }
       end
     end
+  end
+
+  def show
+    user = User.find(params.require(:id))
+
+    render status: :ok, json: user.as_json(
+      private_attributes: ['email'],
+    )
+  end
+
+  def merge
+    to_be_maintained_user = User.find(params.require(:toBeMaintainedUserId))
+    to_be_anonymized_user = User.find(params.require(:toBeAnonymizedUserId))
+
+    if to_be_maintained_user.name != to_be_anonymized_user.name ||
+       to_be_maintained_user.country_iso2 != to_be_anonymized_user.country_iso2 ||
+       to_be_maintained_user.gender != to_be_anonymized_user.gender ||
+       to_be_maintained_user.dob != to_be_anonymized_user.dob
+      return render status: :bad_request, json: { error: "Cannot merge users with different details" }
+    end
+
+    if !current_user.results_team? && (to_be_maintained_user.special_account? || to_be_anonymized_user.special_account?)
+      return render status: :bad_request,
+                    json: { error: 'One of the account is a special account, please contact WRT to merge them.' }
+    end
+
+    return render status: :bad_request, json: { error: "Cannot merge users with both having a WCA ID" } if to_be_maintained_user.wca_id.present? && to_be_anonymized_user.wca_id.present?
+
+    ActiveRecord::Base.transaction do
+      ReassignWcaId.transfer_user_data(to_be_anonymized_user, to_be_maintained_user)
+
+      Registration.where(user: to_be_anonymized_user).update_all(user: to_be_maintained_user)
+
+      # Update WCA ID
+      if to_be_anonymized_user.wca_id.present?
+        wca_id = to_be_anonymized_user.wca_id
+        to_be_anonymized_user.update!(wca_id: nil)
+        to_be_maintained_user.update!(wca_id: wca_id)
+      end
+
+      to_be_anonymized_user.anonymize
+    end
+    render status: :ok, json: { success: true }
   end
 
   private def user_to_edit

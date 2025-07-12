@@ -51,27 +51,31 @@ class ReassignWcaId
     return false unless valid?
 
     ActiveRecord::Base.transaction do
-      # Update Organized Competitions
-      CompetitionOrganizer.where(organizer_id: account1_user.id).update_all(organizer_id: account2_user.id)
-
-      # Update Delegated Competitions
-      CompetitionDelegate.where(delegate_id: account1_user.id).update_all(delegate_id: account2_user.id)
-
-      # Update Competitions Results Posted By
-      Competition.where(results_posted_by: account1_user.id).update_all(results_posted_by: account2_user.id)
-
-      # Update Competitions Announced By
-      Competition.where(announced_by: account1_user.id).update_all(announced_by: account2_user.id)
-
-      # Update roles
-      UserRole.where(user_id: account1_user.id).update_all(user_id: account2_user.id)
+      ReassignWcaId.transfer_user_data(account1_user, account2_user)
 
       # Update WCA ID
       wca_id = account1_user.wca_id
-      User.where(id: account1_user.id).update_all(wca_id: nil) # Must remove WCA ID before adding it as it is unique in the Users table
-      User.where(id: account2_user.id).update_all(wca_id: wca_id)
+      account1_user.update!(wca_id: nil) # Must remove WCA ID before adding it as it is unique in the Users table
+      account2_user.update!(wca_id: wca_id)
     end
 
     true
+  end
+
+  def self.transfer_user_data(account1_user, account2_user)
+    # Update Organized Competitions
+    CompetitionOrganizer.where(organizer_id: account1_user.id).update_all(organizer_id: account2_user.id)
+
+    # Update Delegated Competitions
+    CompetitionDelegate.where(delegate_id: account1_user.id).update_all(delegate_id: account2_user.id)
+
+    # Update Competitions Results Posted By
+    Competition.where(results_posted_by: account1_user.id).update_all(results_posted_by: account2_user.id)
+
+    # Update Competitions Announced By
+    Competition.where(announced_by: account1_user.id).update_all(announced_by: account2_user.id)
+
+    # Update roles
+    UserRole.where(user_id: account1_user.id).update_all(user_id: account2_user.id)
   end
 end
