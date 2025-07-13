@@ -30,16 +30,44 @@ class ResultsSubmissionController < ApplicationController
     render status: :ok, json: job_run
   end
 
-  def upload_json
+  def import_temporary_results
     competition = competition_from_params
+    import_method = params.require(:import_method)
 
-    # Only admins can upload results for the competitions where results are already submitted.
+    # Only admins can import results for the competitions where results are already submitted.
     if competition.results_submitted? && !current_user.can_admin_results?
       return render status: :unprocessable_entity, json: {
         error: "Results have already been submitted for this competition.",
       }
     end
 
+    if import_method == "results_json"
+      temporary_results_data = temporary_results_from_upload_json(competition)
+    elsif import_method == "wca_live"
+      temporary_results_data = temporary_results_from_live_import(competition)
+    else
+      return render status: :bad_request, json: {
+        error: "Invalid import method specified.",
+      }
+    end
+
+    mark_result_submitted = ActiveRecord::Type::Boolean.new.cast(params.require(:mark_result_submitted))
+    store_uploaded_json = ActiveRecord::Type::Boolean.new.cast(params.require(:store_uploaded_json))
+
+    errors = CompetitionResultsImport.import_temporary_results(
+      competition,
+      temporary_results_data,
+      mark_result_submitted: mark_result_submitted,
+      store_uploaded_json: store_uploaded_json,
+      results_json_str: upload_json.results_json_str,
+    )
+
+    return render status: :unprocessable_entity, json: { error: errors } if errors.any?
+
+    render status: :ok, json: { success: true }
+  end
+
+  private def temporary_results_from_upload_json(competition)
     # Do json analysis + insert record in db, then redirect to check inbox
     # (and delete existing record if any)
     upload_json = UploadJson.new({
@@ -67,16 +95,7 @@ class ResultsSubmissionController < ApplicationController
     render status: :ok, json: { success: true }
   end
 
-  def import_from_live
-    competition = competition_from_params
-
-    # Only admins can upload results for the competitions where results are already submitted.
-    if competition.results_submitted? && !current_user.can_admin_results?
-      return render status: :unprocessable_entity, json: {
-        error: "Results have already been submitted for this competition.",
-      }
-    end
-
+  private def temporary_results_from_live_import(competition)
     results_to_import = competition.rounds.flat_map do |round|
       round.round_results.map do |result|
         InboxResult.new({

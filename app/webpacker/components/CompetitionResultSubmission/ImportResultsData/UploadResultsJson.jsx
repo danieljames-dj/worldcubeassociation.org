@@ -1,20 +1,21 @@
 import { useMutation } from '@tanstack/react-query';
 import React, { useState } from 'react';
 import { Form } from 'semantic-ui-react';
-import uploadResultsJson from '../api/uploadResultsJson';
 import useCheckboxState from '../../../lib/hooks/useCheckboxState';
 import Errored from '../../Requests/Errored';
 import Loading from '../../Requests/Loading';
+import importTemporaryResults from '../api/importTemporaryResults';
 
 export default function UploadResultsJson({ competitionId, isAdminView, onImportSuccess }) {
   const [resultFile, setResultFile] = useState();
   const [markResultSubmitted, setMarkResultSubmitted] = useCheckboxState(isAdminView);
 
   const {
-    mutate: uploadResultsJsonMutate, isPending, error, isError,
+    mutate: importTemporaryResultsMutate, isPending, error, isError,
   } = useMutation({
-    mutationFn: () => uploadResultsJson({
+    mutationFn: () => importTemporaryResults({
       competitionId,
+      importMethod: 'results_json',
       resultFile,
       markResultSubmitted,
       storeUploadedJson: !isAdminView, // The JSON will be uploaded to database only for Delegates.
@@ -26,7 +27,7 @@ export default function UploadResultsJson({ competitionId, isAdminView, onImport
   if (isError) return <Errored error={error} />;
 
   return (
-    <Form onSubmit={uploadResultsJsonMutate}>
+    <Form onSubmit={importTemporaryResultsMutate}>
       <Form.Input
         type="file"
         onChange={(event) => setResultFile(event.target.files[0])}

@@ -2,14 +2,14 @@ import React from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { Button } from 'semantic-ui-react';
 import Errored from '../../Requests/Errored';
-import importWcaLiveResults from '../api/importWcaLiveResults';
 import Loading from '../../Requests/Loading';
+import importTemporaryResults from '../api/importTemporaryResults';
 
 export default function ImportWcaLiveResults({ competitionId, onImportSuccess }) {
   const {
-    mutate: importWcaLiveResultsMutate, error, isPending, isError,
+    mutate: importTemporaryResultsMutate, error, isPending, isError,
   } = useMutation({
-    mutationFn: () => importWcaLiveResults({ competitionId }),
+    mutationFn: () => importTemporaryResults({ competitionId, importMethod: 'wca_live' }),
     onSuccess: onImportSuccess,
   });
 
@@ -17,6 +17,6 @@ export default function ImportWcaLiveResults({ competitionId, onImportSuccess })
   if (isError) return <Errored error={error} />;
 
   return (
-    <Button primary onClick={importWcaLiveResultsMutate}>Import WCA Live Results</Button>
+    <Button primary onClick={importTemporaryResultsMutate}>Import WCA Live Results</Button>
   );
 }
