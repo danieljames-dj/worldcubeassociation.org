@@ -12,7 +12,11 @@ class Api::V0::UserRolesController < Api::V0::ApiController
   end
 
   private def pre_filtered_user_roles
-    active_record = UserRole.includes(:user, :group) # Including user & group for post filtering.
+    active_record = UserRole.includes(
+      user: :user_avatars,
+      metadata: {},
+      group: {},
+    ) # Including user, avatars, metadata & group for post filtering.
     is_active = params.key?(:isActive) ? ActiveRecord::Type::Boolean.new.cast(params.require(:isActive)) : nil
     is_group_hidden = params.key?(:isGroupHidden) ? ActiveRecord::Type::Boolean.new.cast(params.require(:isGroupHidden)) : nil
     group_type = params[:groupType]

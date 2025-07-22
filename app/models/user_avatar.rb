@@ -302,7 +302,7 @@ class UserAvatar < ApplicationRecord
 
   DEFAULT_SERIALIZE_OPTIONS = {
     only: %w[id status thumbnail_crop_x thumbnail_crop_y thumbnail_crop_w thumbnail_crop_h],
-    methods: %w[url thumb_url is_default can_edit_thumbnail],
+    methods: %w[thumb_url is_default can_edit_thumbnail],
   }.freeze
 
   def serializable_hash(options = nil)
