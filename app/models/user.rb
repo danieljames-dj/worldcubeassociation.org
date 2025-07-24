@@ -1147,7 +1147,7 @@ class User < ApplicationRecord
   end
 
   def notify_of_results_posted(competition)
-    CompetitionsMailer.notify_users_of_results_presence(self, competition).deliver_later if results_notifications_enabled?
+    CompetitionsMailer.notify_users_of_results_presence(self, competition).deliver_now if results_notifications_enabled?
   end
 
   def maybe_assign_wca_id_by_results(competition, notify: true)

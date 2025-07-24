@@ -56,4 +56,16 @@ class TicketsCompetitionResult < ApplicationRecord
       acting_stakeholder_id: competition_stakeholder.id,
     )
   end
+
+  def post_results(results_posted_by)
+    ActiveRecord::Base.transaction do
+      # It's important to clearout the 'posting_by' here to make sure
+      # another WRT member can start posting other results.
+      competition.update!(results_posted_at: Time.now, results_posted_by: results_posted_by, posting_by: nil)
+      competition.competitor_users.each { |user| user.notify_of_results_posted(competition) }
+      competition.registrations.accepted.each { |registration| registration.user.maybe_assign_wca_id_by_results(competition) }
+
+      self.update!(status: TicketsCompetitionResult.statuses[:posted])
+    end
+  end
 end
