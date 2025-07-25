@@ -197,4 +197,8 @@ class TicketsController < ApplicationController
 
     render json: competition.inbox_results.includes(:inbox_person)
   end
+
+  def merge_temporary_results
+    ticket = Ticket.find(params.require(:ticket_id))
+  end
 end
