@@ -331,7 +331,7 @@ class UserGroup < ApplicationRecord
   end
 
   DEFAULT_SERIALIZE_OPTIONS = {
-    include: %w[metadata],
+    # include: %w[metadata],
   }.freeze
 
   def serializable_hash(options = nil)
