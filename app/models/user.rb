@@ -1278,7 +1278,7 @@ class User < ApplicationRecord
     # scope at the moment).
     json[:class] = self.class.to_s.downcase
     json[:teams] = deprecated_team_roles if include_teams
-    json[:avatar] = self.avatar if include_avatar
+    # json[:avatar] = self.avatar if include_avatar
 
     # Private attributes to include.
     private_attributes = options&.fetch(:private_attributes, []) || []
