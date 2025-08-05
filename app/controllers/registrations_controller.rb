@@ -34,6 +34,50 @@ class RegistrationsController < ApplicationController
     redirect_to competition_path(competition_from_params) if competition_from_params.use_wca_registration?
   end
 
+  before_action :check_errors_import_registration!, only: %i[do_import]
+  private def check_errors_import_registration!
+    @competition = competition_from_params
+    file = params[:csv_registration_file]
+
+    required_event_columns = @competition.events.map(&:id)
+    required_other_columns = ["status", "name", "country", "wca id", "birth date", "gender", "email"]
+
+    headers = CSV.read(file.path).first.compact.map(&:downcase)
+    missing_headers = (required_event_columns + required_other_columns) - headers
+    return render status: :bad_request, json: { error: I18n.t("registrations.import.errors.missing_columns", columns: missing_headers.join(", ")) } if missing_headers.any?
+
+    filtered_csv_rows = CSV.read(
+      file.path,
+      headers: true,
+      header_converters: :symbol,
+      skip_blanks: true,
+      converters: ->(string) { string&.strip }
+    ).select { |row| row[:status] == "a" }
+
+    event_column_error = nil
+
+    filtered_csv_rows.each_with_index do |row, index|
+      break if event_column_error
+      event_ids = []
+
+      required_event_columns.each do |event_column|
+        cell_value = row[event_column]
+        if cell_value == "1"
+          event_ids << event_column
+        elsif cell_value != "0"
+          event_column_error I18n.t("registrations.import.errors.invalid_event_column", value: cell_value, column: event_column)
+          break
+        end
+      end
+    end
+
+    return render status: :bad_request, json: { error: event_column_error } if event_column_error
+
+    @registration_rows = CSV.read(file.path, headers: true, header_converters: :symbol, skip_blanks: true, converters: ->(string) { string&.strip })
+                            .map(&:to_hash)
+                            .select { |registration_row| registration_row[:status] == "a" }
+  end
+
   def edit_registrations
     @competition = competition_from_params
   end
@@ -81,17 +125,9 @@ class RegistrationsController < ApplicationController
   end
 
   def do_import
-    competition = competition_from_params
-    file = params[:csv_registration_file]
-    required_columns = ["status", "name", "country", "wca id", "birth date", "gender", "email"] + competition.events.map(&:id)
-    # Ensure the CSV file includes all required columns.
-    headers = CSV.read(file.path).first.compact.map(&:downcase)
-    missing_headers = required_columns - headers
-    raise I18n.t("registrations.import.errors.missing_columns", columns: missing_headers.join(", ")) if missing_headers.any?
+    competition = @competition
+    registration_rows = @registration_rows
 
-    registration_rows = CSV.read(file.path, headers: true, header_converters: :symbol, skip_blanks: true, converters: ->(string) { string&.strip })
-                           .map(&:to_hash)
-                           .select { |registration_row| registration_row[:status] == "a" }
     if competition.competitor_limit_enabled? && registration_rows.length > competition.competitor_limit
       raise I18n.t("registrations.import.errors.over_competitor_limit",
                    accepted_count: registration_rows.length,
