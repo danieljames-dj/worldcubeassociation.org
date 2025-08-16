@@ -238,10 +238,18 @@ class AdminController < ApplicationController
     @competition_ids = competition_list_from_string(@competition_ids_string)
     @persons_to_finish = FinishUnfinishedPersons.search_persons(@competition_ids)
 
-    return unless @persons_to_finish.empty?
+    nil unless @persons_to_finish.empty?
+  end
 
-    flash[:warning] = "There are no persons to complete for the selected competition"
-    redirect_to panel_page_path(id: User.panel_pages[:createNewComers], competition_ids: @competition_ids)
+  def new_comer_check_details
+    competition_ids = params.require(:competitionIds).split(',')
+
+    finish_persons = FinishPersonsForm.new(competition_ids: competition_ids)
+    persons_to_finish = finish_persons.search_persons
+
+    render json: {
+      persons_to_finish: persons_to_finish,
+    }
   end
 
   def do_complete_persons

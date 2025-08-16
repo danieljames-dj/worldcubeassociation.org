@@ -337,6 +337,9 @@ export const actionUrls = {
     updateUserData: `<%= CGI.unescape(Rails.application.routes.url_helpers.users_update_user_data_path) %>`,
     merge: `<%= CGI.unescape(Rails.application.routes.url_helpers.users_merge_path) %>`,
   },
+  admin: {
+    getNewComerCheckDetails: (competitionIds) => `<%= CGI.unescape(Rails.application.routes.url_helpers.admin_new_comer_check_details_path) %>?competitionIds=${competitionIds}`,
+  },
 }
 
 export const liveUrls = {

@@ -325,6 +325,7 @@ Rails.application.routes.draw do
   get '/admin/override_regional_records' => 'admin#override_regional_records'
   post '/admin/override_regional_records' => 'admin#do_override_regional_records'
   get '/admin/complete_persons' => 'admin#complete_persons'
+  get '/admin/new_comer_check_details' => 'admin#new_comer_check_details'
   post '/admin/complete_persons' => 'admin#do_complete_persons'
   get '/admin/peek_unfinished_results' => 'admin#peek_unfinished_results'
 
