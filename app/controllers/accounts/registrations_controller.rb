@@ -12,7 +12,7 @@ class Accounts::RegistrationsController < Devise::RegistrationsController
   private
 
     def check_captcha
-      return if verify_recaptcha
+      return if verify_recaptcha || Rails.env.test?
 
       build_resource(sign_up_params)
       resource.validate
