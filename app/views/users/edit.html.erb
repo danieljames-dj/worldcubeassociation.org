@@ -92,7 +92,17 @@
               <% end %>
             </div>
             <div class="col-xs-6">
-              <%= f.input :wca_id, as: :wca_id, disabled: !editable_fields.include?(:wca_id)%>
+              <%= f.input :wca_id, as: :wca_id, disabled: true %>
+              <% if editable_fields.include?(:wca_id) %>
+                <% if @user.wca_id.blank? %>
+                  <%= react_component("WcaIdAssignButton", { userId: @user.id, userName: @user.name }) %>
+                <% else %>
+                  <%= link_to "Remove WCA ID", remove_wca_id_path(@user),
+                        method: :delete,
+                        data: { confirm: "Are you sure you want to remove WCA ID #{@user.wca_id} from this user?" },
+                        class: "btn btn-danger" %>
+                <% end %>
+              <% end %>
               <% if current_user.can_edit_any_user? && @user.special_account? %>
                 <p class="help-block">
                   <%= t '.account_is_special' %>

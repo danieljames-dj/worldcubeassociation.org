@@ -7,7 +7,7 @@ class UsersController < ApplicationController
   before_action :set_recent_authentication!, only: %i[edit update enable_2fa disable_2fa]
   before_action :redirect_if_cannot_edit_user, only: %i[edit update]
   before_action -> { redirect_to_root_unless_user(:can_admin_results?) }, only: %i[admin_search merge]
-  before_action -> { redirect_to_root_unless_user(:can_edit_any_user?) }, only: %i[assign_wca_id]
+  before_action -> { redirect_to_root_unless_user(:can_edit_any_user?) }, only: %i[assign_wca_id remove_wca_id]
   before_action -> { check_edit_access }, only: %i[show_for_edit update_user_data]
 
   RECENT_AUTHENTICATION_DURATION = 10.minutes.freeze
@@ -122,6 +122,16 @@ class UsersController < ApplicationController
     user.assign_wca_id(wca_id)
 
     render status: :ok, json: { success: true }
+  end
+
+  def remove_wca_id
+    user = User.find(params.require(:id))
+
+    return render status: :bad_request, json: { error: "User does not have a WCA ID" } if user.wca_id.blank?
+
+    user.update!(wca_id: nil)
+    flash[:success] = "WCA ID removed successfully."
+    redirect_to edit_user_path(user)
   end
 
   private def user_to_edit
