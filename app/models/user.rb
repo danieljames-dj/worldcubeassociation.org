@@ -204,6 +204,9 @@ class User < ApplicationRecord
 
   before_validation :maybe_clear_claimed_wca_id
   def maybe_clear_claimed_wca_id
+    # `clear_wca_id_claim_fields` uses `update_columns`, which raises an error on unsaved
+    # records. So we need to skip it for new records.
+    return if new_record?
     return unless !claiming_wca_id && ((unconfirmed_wca_id_was.present? && wca_id == unconfirmed_wca_id_was) || unconfirmed_wca_id.blank?)
 
     clear_wca_id_claim_fields
