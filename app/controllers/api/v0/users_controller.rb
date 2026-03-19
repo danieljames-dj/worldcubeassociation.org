@@ -19,7 +19,7 @@ class Api::V0::UsersController < Api::V0::ApiController
     users = User.where(id: user_ids)
     render status: :ok, json: { users: users.as_json({
                                                        only: %w[id wca_id name gender country_iso2],
-                                                       methods: ["country"],
+                                                       methods: %w[country special_account?],
                                                        include: [],
                                                      }) }
   end

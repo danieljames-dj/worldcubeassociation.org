@@ -58,9 +58,9 @@ class UsersController < ApplicationController
 
   def show_for_edit
     render status: :ok, json: @user.as_json(
-      only: %w[id name gender country_iso2],
+      only: %w[id name gender country_iso2 wca_id],
       private_attributes: %w[dob],
-      methods: [],
+      methods: %w[special_account?],
       include: [],
     )
   end
