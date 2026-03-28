@@ -34,7 +34,11 @@ class UploadJson
 
   def temporary_results_data
     competition = Competition.includes(competition_events: [:rounds]).find(competition_id)
+    wca_ids = parsed_json["persons"].filter_map { |p| p["wcaId"] }
+    users_by_wca_id = wca_ids.any? ? User.where(wca_id: wca_ids).index_by(&:wca_id) : {}
+
     persons_to_import = []
+    registrations_to_import = []
     parsed_json["persons"].each do |p|
       new_person_attributes = {
         id: [p["id"], competition_id],
@@ -47,6 +51,16 @@ class UploadJson
       # mask uploaded DOB on staging to avoid accidentally importing PII
       new_person_attributes["dob"] = "1954-12-04" if Rails.env.production? && !EnvConfig.WCA_LIVE_SITE?
       persons_to_import << InboxPerson.new(new_person_attributes)
+
+      if !competition.use_wca_registration? && competition.registrations.blank?
+        registrations_to_import << Registration.new(
+          competition_id: competition_id,
+          registrant_id: p["id"],
+          user: users_by_wca_id[p["wcaId"]],
+          is_competing: true,
+          competing_status: 'accepted',
+        )
+      end
     end
     results_to_import = []
     scrambles_to_import = []
@@ -113,6 +127,7 @@ class UploadJson
       results_to_import: results_to_import,
       scrambles_to_import: scrambles_to_import,
       persons_to_import: persons_to_import,
+      registrations_to_import: registrations_to_import,
     }
   end
 end

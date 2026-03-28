@@ -14,6 +14,7 @@ module CompetitionResultsImport
     results_to_import = temporary_results_data[:results_to_import]
     scrambles_to_import = temporary_results_data[:scrambles_to_import]
     persons_to_import = temporary_results_data[:persons_to_import]
+    registrations_to_import = temporary_results_data[:registrations_to_import]
 
     ActiveRecord::Base.transaction do
       InboxPerson.where(competition_id: competition.id).delete_all
@@ -22,6 +23,7 @@ module CompetitionResultsImport
       InboxPerson.import!(persons_to_import)
       Scramble.import!(scrambles_to_import)
       InboxResult.import!(results_to_import)
+      Registration.import!(registrations_to_import)
 
       competition.touch(:results_submitted_at) if mark_result_submitted && !competition.results_submitted?
 

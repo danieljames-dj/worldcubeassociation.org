@@ -216,8 +216,6 @@ module ResultsValidators
           end
         end
 
-        next unless competition.use_wca_registration? || competition.registrations.any?
-
         # Load registrations ahead of time here so we don't query for each InboxPerson.
         # This could have been managed by overriding competition_associations, and adding `:registrations`,
         # but it was not so straightforward. Also since `InboxPerson` will soon be removed entirely, didn't
