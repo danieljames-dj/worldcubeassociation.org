@@ -493,6 +493,72 @@ RSpec.describe PV do
           )
         end
       end
+
+      context "newcomer duplicate check validation" do
+        it "warns if there are newcomers and no duplicate check has run" do
+          reg = create(:registration, :accepted, competition: competition_with_regs)
+          # Ensure there is a newcomer (user with wca_id: nil)
+          reg.user.update!(wca_id: nil)
+
+          validator_args = [
+            { competition_ids: [competition_with_regs.id], model: InboxResult }
+          ]
+
+          validator_args.each do |arg|
+            pv = PV.new.validate(**arg)
+            expect(pv.warnings).to include(
+              RV::ValidationWarning.new(PV::NEWCOMERS_ACCEPTED_AFTER_DUPLICATE_CHECK_WARNING,
+                                        :persons, competition_with_regs.id)
+            )
+          end
+        end
+
+        it "warns if a newcomer was accepted after the last successful duplicate check" do
+          # Create a successful run
+          create(:duplicate_checker_job_run, competition: competition_with_regs, run_status: :success, start_time: 1.day.ago, created_at: 1.day.ago)
+
+          # Newcomer accepted before the run (should not trigger warning if only this one exists)
+          reg1 = create(:registration, :accepted, competition: competition_with_regs, accepted_at: 2.days.ago)
+          reg1.user.update!(wca_id: nil)
+
+          # Newcomer accepted after the run
+          reg2 = create(:registration, :accepted, competition: competition_with_regs, accepted_at: 1.hour.ago)
+          reg2.user.update!(wca_id: nil)
+
+          validator_args = [
+            { competition_ids: [competition_with_regs.id], model: InboxResult }
+          ]
+
+          validator_args.each do |arg|
+            pv = PV.new.validate(**arg)
+            expect(pv.warnings).to include(
+              RV::ValidationWarning.new(PV::NEWCOMERS_ACCEPTED_AFTER_DUPLICATE_CHECK_WARNING,
+                                        :persons, competition_with_regs.id)
+            )
+          end
+        end
+
+        it "does not warn if all newcomers were accepted before the last successful duplicate check" do
+          # Create a successful run
+          create(:duplicate_checker_job_run, competition: competition_with_regs, run_status: :success, start_time: 1.hour.ago, created_at: 1.hour.ago)
+
+          # Newcomer accepted before the run
+          reg = create(:registration, :accepted, competition: competition_with_regs, accepted_at: 2.hours.ago)
+          reg.user.update!(wca_id: nil)
+
+          validator_args = [
+            { competition_ids: [competition_with_regs.id], model: InboxResult }
+          ]
+
+          validator_args.each do |arg|
+            pv = PV.new.validate(**arg)
+            expect(pv.warnings).not_to include(
+              RV::ValidationWarning.new(PV::NEWCOMERS_ACCEPTED_AFTER_DUPLICATE_CHECK_WARNING,
+                                        :persons, competition_with_regs.id)
+            )
+          end
+        end
+      end
     end
   end
 end

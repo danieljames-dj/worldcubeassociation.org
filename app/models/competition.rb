@@ -44,6 +44,7 @@ class Competition < ApplicationRecord
   has_many :matched_scramble_sets, through: :rounds
   has_many :accepted_registrations, -> { accepted }, class_name: "Registration", foreign_key: "competition_id", inverse_of: :competition
   has_many :accepted_newcomers, -> { where(wca_id: nil) }, through: :accepted_registrations, source: :user
+  has_many :accepted_newcomer_registrations, -> { accepted.joins(:user).where(users: { wca_id: nil }) }, class_name: "Registration", foreign_key: "competition_id"
   has_many :duplicate_checker_job_runs, dependent: :delete_all
   has_one :tickets_competition_result
   has_one :result_ticket, through: :tickets_competition_result, source: :ticket

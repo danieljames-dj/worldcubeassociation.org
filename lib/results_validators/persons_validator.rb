@@ -29,6 +29,7 @@ module ResultsValidators
     REGISTRATION_DETAILS_MISMATCH_WARNING = :registration_details_mismatch_warning
     MISSING_MATCHING_REGISTRATION_WARNING = :missing_matching_registration_warning
     UNACCEPTED_REGISTRATION_WITH_RESULTS_WARNING = :unaccepted_registration_with_results_warning
+    NEWCOMERS_ACCEPTED_AFTER_DUPLICATE_CHECK_WARNING = :newcomers_accepted_after_duplicate_checker_warning
 
     def self.description
       "This validator checks that Persons data make sense with regard to the competition results and the WCA database."
@@ -40,6 +41,10 @@ module ResultsValidators
 
     def include_persons?
       true
+    end
+
+    def competition_associations(check_real_results: false)
+      { duplicate_checker_job_runs: [] }
     end
 
     def self.roman_readable_part(name)
@@ -252,6 +257,20 @@ module ResultsValidators
                                              person_id: p.ref_id,
                                              name: p.name,
                                              mismatches: mismatches.join(', '))
+        end
+
+        # Newcomer duplicate check validation
+        last_run = competition.duplicate_checker_job_runs.run_status_success.first
+        newcomers_accepted_after_last_run = if last_run.nil?
+                                              competition.accepted_newcomers.any?
+                                            else
+                                              competition.accepted_newcomer_registrations
+                                                         .where("accepted_at > ?", last_run.start_time || last_run.created_at).any?
+                                            end
+
+        if newcomers_accepted_after_last_run
+          @warnings << ValidationWarning.new(NEWCOMERS_ACCEPTED_AFTER_DUPLICATE_CHECK_WARNING,
+                                             :persons, competition.id)
         end
       end
     end
