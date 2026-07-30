@@ -3911,13 +3911,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@redocly/cli@npm:2.40.0":
-  version: 2.40.0
-  resolution: "@redocly/cli@npm:2.40.0"
+"@redocly/cli@npm:2.41.1":
+  version: 2.41.1
+  resolution: "@redocly/cli@npm:2.41.1"
   bin:
     openapi: bin/cli.js
     redocly: bin/cli.js
-  checksum: 10c0/794c54bdab9736faa17a23554f43ae08bde5473e25a87b4db8df8c4f7da1f9dc0e16eee3cf0a457077090921a52c5b7bc4e285626e67335d20c3ae8136756218
+  checksum: 10c0/dc4df7d061bbef88bfb127add00b9fd3faadbd1d31bf2e80dfc004b0e5fee693e863b853f76b17565cd6062e664333a97dc9a461c550da5d407636ab1a5debea
   languageName: node
   linkType: hard
 
@@ -11867,7 +11867,7 @@ __metadata:
     "@payloadcms/storage-s3": "npm:3.86.0"
     "@rails/actioncable": "npm:^8.1.300"
     "@react-aria/focus": "npm:^3.22.1"
-    "@redocly/cli": "npm:2.40.0"
+    "@redocly/cli": "npm:2.41.1"
     "@stylistic/eslint-plugin": "npm:^5.10.0"
     "@tanstack/eslint-plugin-query": "npm:^5.101.4"
     "@tanstack/react-form": "npm:^1.33.2"
