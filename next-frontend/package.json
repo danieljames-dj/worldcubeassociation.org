@@ -121,7 +121,7 @@
     "jsdom": "^31.0.1",
     "openapi-typescript": "^7.13.0",
     "prettier": "^3.10.1",
-    "typescript": "^6",
+    "typescript": "^7",
     "vite": "^8",
     "vitest": "^5.1.1"
   },
